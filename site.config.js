@@ -20,7 +20,7 @@ const CONFIG = {
   // blog setting (required)
   blog: {
     title: "星光工作室",
-    description: "星光工作室 —— 前端筆記、作品與生活。",
+    description: "前端筆記、作品與生活。",
     scheme: "dark", // 'light' | 'dark' | 'system'
   },
 
