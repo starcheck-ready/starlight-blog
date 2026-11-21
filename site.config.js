@@ -11,12 +11,12 @@ const CONFIG = {
     github: "starcheck-ready",
     instagram: "starcheuk_hk",
   },
-  // projects: [
-  //   {
-  //     name: `morethan-log`,
-  //     href: "https://github.com/morethanmin/morethan-log",
-  //   },
-  // ],
+  projects: [
+    {
+      name: `星光工作室`,
+      href: "https://starlight-hk.vercel.app/",
+    },
+  ],
   // blog setting (required)
   blog: {
     title: "星光工作室",
