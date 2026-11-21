@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    // Notion image URLs now 302 redirect to img.notionusercontent.com, which the
+    // Next.js image optimizer does not follow, so serve them directly instead.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
