@@ -34,7 +34,14 @@ const PostCard: React.FC<Props> = ({ data }) => {
         )}
         <div data-thumb={!!data.thumbnail} data-category={!!category} className="content">
           <header className="top">
-            <h2>{data.title}</h2>
+            <h2>
+              {data.pinned && (
+                <span className="pin" role="img" aria-label="Pinned post">
+                  📌
+                </span>
+              )}
+              {data.title}
+            </h2>
           </header>
           <div className="date">
             <div className="content">
@@ -123,6 +130,10 @@ const StyledWrapper = styled(Link)`
           font-weight: 500;
 
           cursor: pointer;
+
+          > .pin {
+            margin-right: 0.35rem;
+          }
 
           @media (min-width: 768px) {
             font-size: 1.25rem;

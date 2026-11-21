@@ -13,7 +13,7 @@ export type AppPropsWithLayout = AppProps & {
 }
 
 export type TPostStatus = "Private" | "Public" | "PublicOnDetail"
-export type TPostType = "Post" | "Paper" | "Page"
+export type TPostType = "Post" | "Paper" | "Page" | "PinnedPost"
 
 export type TPost = {
   id: string
@@ -33,6 +33,7 @@ export type TPost = {
   createdTime: string
   fullWidth: boolean
   thumbnail?: string
+  pinned?: boolean
 }
 
 export type PostDetail = TPost & {

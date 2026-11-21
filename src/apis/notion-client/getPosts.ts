@@ -38,6 +38,14 @@ export const getPosts = async () => {
     for (let i = 0; i < pageIds.length; i++) {
       const id = pageIds[i]
       const properties = (await getPageProperties(id, block, schema)) || null
+      // "PinnedPost" behaves like a normal Post, flagged as pinned
+      const types: string[] = properties.type || []
+      properties.pinned = types.includes("PinnedPost")
+      if (properties.pinned) {
+        properties.type = types.map((type) =>
+          type === "PinnedPost" ? "Post" : type
+        )
+      }
       // Add fullwidth, createdtime to properties
       const pageBlockValue = (block[id].value as any)?.value ?? block[id].value
       properties.createdTime = new Date(
@@ -49,8 +57,9 @@ export const getPosts = async () => {
       data.push(properties)
     }
 
-    // Sort by date
+    // Sort by pinned first, then by date
     data.sort((a: any, b: any) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
       const dateA: any = new Date(a?.date?.start_date || a.createdTime)
       const dateB: any = new Date(b?.date?.start_date || b.createdTime)
       return dateB - dateA

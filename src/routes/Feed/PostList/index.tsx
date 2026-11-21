@@ -46,6 +46,12 @@ const PostList: React.FC<Props> = ({ q }) => {
         newFilteredPosts = newFilteredPosts.reverse()
       }
 
+      // pinned posts always stay on top
+      newFilteredPosts = [
+        ...newFilteredPosts.filter((post) => post.pinned),
+        ...newFilteredPosts.filter((post) => !post.pinned),
+      ]
+
       return newFilteredPosts
     })
   }, [q, currentTag, currentCategory, currentOrder, setFilteredPosts])
