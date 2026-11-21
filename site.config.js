@@ -13,19 +13,19 @@ const CONFIG = {
   },
   projects: [
     {
-      name: `星光工作室`,
-      href: "https://starlight-hk.vercel.app/",
+      name: `星光休息區`,
+      href: "https://starlight-hk.vercel.app",
     },
   ],
   // blog setting (required)
   blog: {
-    title: "星光工作室",
+    title: "星光休息區",
     description: "前端筆記、作品與生活。",
     scheme: "dark", // 'light' | 'dark' | 'system'
   },
 
   // CONFIG configration (required)
-  link: "https://morethan-log.vercel.app",
+  link: "https://starlight-hk.vercel.app",
   since: 2026, // If leave this empty, current year will be used.
   lang: "zh-HK", // ['en-US', 'zh-CN', 'zh-HK', 'zh-TW', 'ja-JP', 'es-ES', 'ko-KR']
   ogImageGenerateURL: "https://og-image-korean.vercel.app", // The link to generate OG image, don't end with a slash
