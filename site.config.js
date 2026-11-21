@@ -8,7 +8,7 @@ const CONFIG = {
     bio: "Frontend developer building clean, fast web experiences.",
     // email: "morethanmin.dev@gmail.com",
     // linkedin: "morethanmin",
-    // github: "morethanmin",
+    github: "starcheck-ready",
     instagram: "starcheuk_hk",
   },
   // projects: [
