@@ -15,13 +15,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     changefreq: "daily",
   }))
 
-  // Include the site root separately
-  fields.unshift({
-    loc: CONFIG.link,
-    lastmod: new Date().toISOString(),
-    priority: 1.0,
-    changefreq: "daily",
-  })
+  // Include static pages separately
+  fields.unshift(
+    {
+      loc: `${CONFIG.link}/archive`,
+      lastmod: new Date().toISOString(),
+      priority: 0.8,
+      changefreq: "daily",
+    },
+    {
+      loc: CONFIG.link,
+      lastmod: new Date().toISOString(),
+      priority: 1.0,
+      changefreq: "daily",
+    }
+  )
 
   return getServerSideSitemap(ctx, fields)
 }

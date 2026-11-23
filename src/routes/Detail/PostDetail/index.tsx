@@ -55,7 +55,7 @@ const PostDetail: React.FC<Props> = () => {
     <>
       <ReadingProgress targetRef={wrapperRef} />
       <StyledWrapper ref={wrapperRef}>
-        <div className="layout">
+        <div className="layout" data-toc={showToc}>
           <article>
             {category && (
               <div css={{ marginBottom: "0.5rem" }}>
@@ -116,8 +116,10 @@ const StyledWrapper = styled.div`
     grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
 
-    @media (min-width: 1024px) {
-      grid-template-columns: minmax(0, 1fr) 11.5rem;
+    &[data-toc="true"] {
+      @media (min-width: 1024px) {
+        grid-template-columns: minmax(0, 1fr) 11.5rem;
+      }
     }
 
     > article {
