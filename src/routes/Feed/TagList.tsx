@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
 import { Emoji } from "src/components/Emoji"
@@ -11,25 +12,13 @@ const TagList: React.FC<Props> = () => {
   const currentTag = router.query.tag || undefined
   const data = useTagsQuery()
 
-  const handleClickTag = (value: any) => {
-    // delete
-    if (currentTag === value) {
-      router.push({
-        query: {
-          ...router.query,
-          tag: undefined,
-        },
-      })
-    }
-    // add
-    else {
-      router.push({
-        query: {
-          ...router.query,
-          tag: value,
-        },
-      })
-    }
+  const getHref = (value: string) => {
+    const query = { ...router.query }
+
+    if (currentTag === value) delete query.tag
+    else query.tag = value
+
+    return { pathname: router.pathname, query }
   }
 
   return (
@@ -39,13 +28,9 @@ const TagList: React.FC<Props> = () => {
       </div>
       <div className="list">
         {Object.keys(data).map((key) => (
-          <a
-            key={key}
-            data-active={key === currentTag}
-            onClick={() => handleClickTag(key)}
-          >
+          <Link key={key} href={getHref(key)} data-active={key === currentTag}>
             {key}
-          </a>
+          </Link>
         ))}
       </div>
     </StyledWrapper>

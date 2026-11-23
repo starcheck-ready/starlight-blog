@@ -34,6 +34,8 @@ export type TPost = {
   fullWidth: boolean
   thumbnail?: string
   pinned?: boolean
+  Series?: string[]
+  SeriesOrder?: string
 }
 
 export type PostDetail = TPost & {

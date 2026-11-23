@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
 
@@ -11,28 +12,19 @@ const OrderButtons: React.FC<Props> = () => {
 
   const currentOrder = `${router.query.order || ``}` || ("desc" as TOrder)
 
-  const handleClickOrderBy = (value: TOrder) => {
-    router.push({
-      query: {
-        ...router.query,
-        order: value,
-      },
-    })
-  }
+  const getHref = (order: TOrder) => ({
+    pathname: router.pathname,
+    query: { ...router.query, order },
+  })
+
   return (
     <StyledWrapper>
-      <a
-        data-active={currentOrder === "desc"}
-        onClick={() => handleClickOrderBy("desc")}
-      >
+      <Link href={getHref("desc")} data-active={currentOrder === "desc"}>
         Desc
-      </a>
-      <a
-        data-active={currentOrder === "asc"}
-        onClick={() => handleClickOrderBy("asc")}
-      >
+      </Link>
+      <Link href={getHref("asc")} data-active={currentOrder === "asc"}>
         Asc
-      </a>
+      </Link>
     </StyledWrapper>
   )
 }

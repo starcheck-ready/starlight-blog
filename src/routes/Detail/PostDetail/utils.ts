@@ -4,6 +4,7 @@ import {
   getBlockValue,
   getPageTableOfContents,
   idToUuid,
+  uuidToId,
 } from "notion-utils"
 import type { TableOfContentsEntry } from "notion-utils"
 import type { TPost, TPosts } from "src/types"
@@ -105,6 +106,44 @@ export const getAdjacentPosts = (posts: TPosts, current: TPost) => {
     newer: index > 0 ? sorted[index - 1] : undefined,
     older: index < sorted.length - 1 ? sorted[index + 1] : undefined,
   }
+}
+
+export type GuideTodo = {
+  id: string
+  text: string
+  checked: boolean
+}
+
+export const getGuideTodos = (
+  recordMap: ExtendedRecordMap,
+  pageId: string
+): GuideTodo[] => {
+  const page = getPageBlock(recordMap, pageId)
+  if (!page) return []
+
+  const todos: GuideTodo[] = []
+
+  const walk = (blockIds: string[]) => {
+    blockIds.forEach((blockId) => {
+      const block = getBlockValue(recordMap.block[blockId])
+      if (!block) return
+
+      if (block.type === "to_do") {
+        const rawChecked = (block.properties as any)?.checked
+        todos.push({
+          // 與 react-notion-x 傳入 Checkbox 的 blockId 格式保持一致
+          id: `notion-block-${uuidToId(block.id)}`,
+          text: getBlockTitle(block, recordMap),
+          checked: rawChecked?.[0]?.[0] === "Yes",
+        })
+      }
+
+      if (block.content) walk(block.content)
+    })
+  }
+
+  walk(page.content ?? [])
+  return todos
 }
 
 const getRelatedScore = (post: TPost, current: TPost) => {

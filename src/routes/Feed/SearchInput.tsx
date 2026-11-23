@@ -14,6 +14,7 @@ const SearchInput: React.FC<Props> = ({ ...props }) => {
         className="mid"
         type="text"
         placeholder="Search Keyword..."
+        aria-label="搜尋文章"
         {...props}
       />
     </StyledWrapper>

@@ -15,6 +15,7 @@ import "prismjs/themes/prism-tomorrow.css"
 import "katex/dist/katex.min.css"
 import { FC } from "react"
 import styled from "@emotion/styled"
+import GuideCheckbox from "../GuideCheckbox"
 
 const _NotionRenderer = dynamic(
   () => import("react-notion-x").then((m) => m.NotionRenderer),
@@ -67,6 +68,7 @@ const NotionRenderer: FC<Props> = ({ recordMap }) => {
           Equation,
           Modal,
           Pdf,
+          Checkbox: GuideCheckbox,
           nextImage: Image,
           nextLink: Link,
         }}
@@ -91,5 +93,10 @@ const StyledWrapper = styled.div`
   }
   .notion-h {
     scroll-margin-top: 4.5rem;
+  }
+  .notion-to-do:has(.notion-property-checkbox[aria-checked="true"])
+    .notion-to-do-body {
+    text-decoration: line-through;
+    opacity: 0.375;
   }
 `

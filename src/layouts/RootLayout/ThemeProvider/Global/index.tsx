@@ -56,6 +56,14 @@ export const Global = () => {
           box-sizing: border-box;
         }
 
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        [tabindex]:focus-visible {
+          outline: 2px solid ${theme.colors.gray12};
+          outline-offset: 2px;
+        }
+
         // init textarea
         textarea {
           border: none;

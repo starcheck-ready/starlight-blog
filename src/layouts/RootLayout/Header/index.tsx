@@ -53,6 +53,10 @@ const StyledWrapper = styled.div`
       display: flex;
       gap: 0.75rem;
       align-items: center;
+
+      @media (max-width: 480px) {
+        gap: 0.5rem;
+      }
     }
   }
 `

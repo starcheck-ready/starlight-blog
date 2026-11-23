@@ -25,19 +25,29 @@ const CategorySelect: React.FC<Props> = () => {
   }
   return (
     <StyledWrapper>
-      <div ref={dropdownRef} className="wrapper" onClick={handleOpen}>
-        {currentCategory} Posts <MdExpandMore />
+      <div ref={dropdownRef} className="wrapper">
+        <button
+          type="button"
+          onClick={handleOpen}
+          aria-haspopup="listbox"
+          aria-expanded={opened}
+        >
+          {currentCategory} Posts <MdExpandMore />
+        </button>
       </div>
       {opened && (
-        <div className="content">
+        <div className="content" role="listbox" aria-label="分類">
           {Object.keys(data).map((key, idx) => (
-            <div
+            <button
+              type="button"
+              role="option"
+              aria-selected={key === currentCategory}
               className="item"
               key={idx}
               onClick={() => handleOptionClick(key)}
             >
               {`${key} (${data[key]})`}
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -58,7 +68,18 @@ const StyledWrapper = styled.div`
     font-size: 1.25rem;
     line-height: 1.75rem;
     font-weight: 700;
-    cursor: pointer;
+
+    > button {
+      display: flex;
+      padding: 0;
+      gap: 0.25rem;
+      align-items: center;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
   }
   > .content {
     position: absolute;
@@ -73,9 +94,15 @@ const StyledWrapper = styled.div`
       padding: 0.25rem;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
+      width: 100%;
+      border: none;
       border-radius: 0.75rem;
+      background: transparent;
+      color: inherit;
+      font-family: inherit;
       font-size: 0.875rem;
       line-height: 1.25rem;
+      text-align: left;
       white-space: nowrap;
       cursor: pointer;
 

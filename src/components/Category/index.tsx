@@ -1,4 +1,4 @@
-import { useRouter } from "next/router"
+import Link from "next/link"
 import React from "react"
 import { COLOR_SET } from "./constants"
 import styled from "@emotion/styled"
@@ -23,28 +23,26 @@ type Props = {
 }
 
 const Category: React.FC<Props> = ({ readOnly = false, children }) => {
-  const router = useRouter()
+  const backgroundColor = getColorClassByName(children)
 
-  const handleClick = (value: string) => {
-    if (readOnly) return
-    router.push(`/?category=${value}`)
+  if (readOnly) {
+    return <StyledReadOnly css={{ backgroundColor }}>{children}</StyledReadOnly>
   }
+
   return (
-    <StyledWrapper
-      onClick={() => handleClick(children)}
-      css={{
-        backgroundColor: getColorClassByName(children),
-        cursor: readOnly ? "default" : "pointer",
-      }}
+    <StyledLink
+      href={`/categories/${encodeURIComponent(children)}`}
+      css={{ backgroundColor }}
     >
       {children}
-    </StyledWrapper>
+    </StyledLink>
   )
 }
 
 export default Category
 
-const StyledWrapper = styled.div`
+const baseStyles = `
+  display: inline-block;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   padding-left: 0.5rem;
@@ -55,4 +53,15 @@ const StyledWrapper = styled.div`
   line-height: 1.25rem;
   opacity: 0.9;
   color: ${colors.dark.gray1};
+  text-decoration: none;
+`
+
+const StyledLink = styled(Link)`
+  ${baseStyles}
+  cursor: pointer;
+`
+
+const StyledReadOnly = styled.span`
+  ${baseStyles}
+  cursor: default;
 `

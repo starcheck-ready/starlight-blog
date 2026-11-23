@@ -14,6 +14,11 @@ const NavBar: React.FC = () => {
             <Link href={link.to}>{link.name}</Link>
           </li>
         ))}
+        <li key="rss" className="rss">
+          <a href="/rss.xml" target="_blank" rel="noreferrer">
+            RSS
+          </a>
+        </li>
       </ul>
     </StyledWrapper>
   )
@@ -30,6 +35,20 @@ const StyledWrapper = styled.div`
       display: block;
       margin-left: 1rem;
       color: ${({ theme }) => theme.colors.gray11};
+
+      a:hover {
+        color: ${({ theme }) => theme.colors.gray12};
+      }
+    }
+
+    @media (max-width: 480px) {
+      li {
+        margin-left: 0.5rem;
+      }
+
+      li.rss {
+        display: none;
+      }
     }
   }
 `

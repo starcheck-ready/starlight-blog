@@ -11,8 +11,11 @@ import ReadingProgress from "./ReadingProgress"
 import TableOfContents from "./TableOfContents"
 import PostNavigation from "./PostNavigation"
 import RelatedPosts from "./RelatedPosts"
+import SeriesNav from "./SeriesNav"
+import GuideProgress from "./GuideProgress"
 import {
   getAdjacentPosts,
+  getGuideTodos,
   getReadingTime,
   getRelatedPosts,
   getTableOfContents,
@@ -44,6 +47,10 @@ const PostDetail: React.FC<Props> = () => {
     () => (data ? getRelatedPosts(posts, data) : []),
     [posts, data]
   )
+  const guideTodos = useMemo(
+    () => (data ? getGuideTodos(data.recordMap, data.id) : []),
+    [data]
+  )
 
   if (!data) return null
 
@@ -72,11 +79,13 @@ const PostDetail: React.FC<Props> = () => {
                 <TableOfContents entries={toc} mobile />
               </div>
             )}
+            <GuideProgress todos={guideTodos} />
             <div>
               <NotionRenderer recordMap={data.recordMap} />
             </div>
             {isPublicPost && (
               <>
+                <SeriesNav current={data} posts={posts} />
                 <PostNavigation newer={newer} older={older} />
                 <RelatedPosts posts={relatedPosts} />
               </>
