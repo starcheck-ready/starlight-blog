@@ -1,22 +1,38 @@
 import styled from "@emotion/styled"
 import Link from "next/link"
+import {
+  MdOutlineArchive,
+  MdOutlineFolderOpen,
+  MdOutlinePersonOutline,
+  MdOutlineRssFeed,
+} from "react-icons/md"
+
+const links = [
+  { id: 1, name: "About", to: "/about", icon: MdOutlinePersonOutline },
+  { id: 2, name: "Archive", to: "/archive", icon: MdOutlineArchive },
+  { id: 3, name: "Projects", to: "/projects", icon: MdOutlineFolderOpen },
+]
 
 const NavBar: React.FC = () => {
-  const links = [
-    { id: 1, name: "About", to: "/about" },
-    { id: 2, name: "Archive", to: "/archive" },
-  ]
   return (
-    <StyledWrapper className="">
+    <StyledWrapper>
       <ul>
-        {links.map((link) => (
-          <li key={link.id}>
-            <Link href={link.to}>{link.name}</Link>
+        {links.map(({ id, name, to, icon: Icon }) => (
+          <li key={id}>
+            <Link href={to} aria-label={name} title={name}>
+              <Icon aria-hidden />
+            </Link>
           </li>
         ))}
-        <li key="rss" className="rss">
-          <a href="/rss.xml" target="_blank" rel="noreferrer">
-            RSS
+        <li key="rss">
+          <a
+            href="/rss.xml"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="RSS"
+            title="RSS"
+          >
+            <MdOutlineRssFeed aria-hidden />
           </a>
         </li>
       </ul>
@@ -36,6 +52,12 @@ const StyledWrapper = styled.div`
       margin-left: 1rem;
       color: ${({ theme }) => theme.colors.gray11};
 
+      a {
+        display: flex;
+        align-items: center;
+        font-size: 1.25rem;
+      }
+
       a:hover {
         color: ${({ theme }) => theme.colors.gray12};
       }
@@ -43,11 +65,7 @@ const StyledWrapper = styled.div`
 
     @media (max-width: 480px) {
       li {
-        margin-left: 0.5rem;
-      }
-
-      li.rss {
-        display: none;
+        margin-left: 0.75rem;
       }
     }
   }

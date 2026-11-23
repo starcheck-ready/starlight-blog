@@ -1,8 +1,9 @@
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
-import { ExtendedRecordMap } from "notion-types"
+import { Block, ExtendedRecordMap } from "notion-types"
 import useScheme from "src/hooks/useScheme"
+import { getOptimizedImageUrl } from "src/libs/imageUrl"
 
 // core styles shared by all of react-notion-x (required)
 import "react-notion-x/src/styles.css"
@@ -51,6 +52,13 @@ const mapPageUrl = (id: string) => {
   return "https://www.notion.so/" + id.replace(/-/g, "")
 }
 
+const mapNotionImageUrl = (url: string | undefined, block: Block) => {
+  if (!url) return url
+  if (block.type !== "image") return url
+
+  return getOptimizedImageUrl(url, 1200)
+}
+
 type Props = {
   recordMap: ExtendedRecordMap
 }
@@ -73,6 +81,7 @@ const NotionRenderer: FC<Props> = ({ recordMap }) => {
           nextLink: Link,
         }}
         mapPageUrl={mapPageUrl}
+        mapImageUrl={mapNotionImageUrl}
       />
     </StyledWrapper>
   )

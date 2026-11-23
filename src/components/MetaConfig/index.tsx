@@ -11,6 +11,15 @@ export type MetaConfigProps = {
 }
 
 const MetaConfig: React.FC<MetaConfigProps> = (props) => {
+  const image =
+    props.image ??
+    (CONFIG.ogImageGenerateURL
+      ? `${CONFIG.ogImageGenerateURL}?${new URLSearchParams({
+          title: props.title,
+          description: props.description,
+        }).toString()}`
+      : undefined)
+
   return (
     <Head>
       <title>{props.title}</title>
@@ -29,12 +38,12 @@ const MetaConfig: React.FC<MetaConfigProps> = (props) => {
       <meta property="og:description" content={props.description} />
       <meta property="og:url" content={props.url} />
       {CONFIG.lang && <meta property="og:locale" content={CONFIG.lang} />}
-      {props.image && <meta property="og:image" content={props.image} />}
+      {image && <meta property="og:image" content={image} />}
       {/* twitter */}
       <meta name="twitter:title" content={props.title} />
       <meta name="twitter:description" content={props.description} />
       <meta name="twitter:card" content="summary_large_image" />
-      {props.image && <meta name="twitter:image" content={props.image} />}
+      {image && <meta name="twitter:image" content={image} />}
       {/* post */}
       {props.type === "Post" && (
         <>

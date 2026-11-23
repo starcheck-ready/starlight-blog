@@ -61,6 +61,8 @@ const PostHeader: React.FC<Props> = ({ data, readingTime }) => {
                 src={data.thumbnail}
                 css={{ objectFit: "cover" }}
                 fill
+                priority
+                sizes="(min-width: 1024px) 672px, 100vw"
                 alt={data.title}
               />
             </div>

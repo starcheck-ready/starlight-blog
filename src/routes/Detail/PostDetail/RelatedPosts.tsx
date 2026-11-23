@@ -26,6 +26,7 @@ const RelatedPosts: React.FC<Props> = ({ posts }) => {
                   src={post.thumbnail}
                   fill
                   alt={post.title}
+                  sizes="(min-width: 768px) 200px, 45vw"
                   css={{ objectFit: "cover" }}
                 />
               ) : (

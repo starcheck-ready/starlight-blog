@@ -14,7 +14,11 @@ const CONFIG = {
   projects: [
     {
       name: `星光休息區`,
+      description:
+        "以 Notion 作為 CMS 的個人部落格，使用 Next.js、TypeScript 與 Vercel 打造。",
       href: "https://starlight-hk.vercel.app",
+      tags: ["Next.js", "Notion", "Vercel"],
+      image: "/avatar.svg",
     },
   ],
   // blog setting (required)
@@ -28,7 +32,7 @@ const CONFIG = {
   link: "https://starlight-hk.vercel.app",
   since: 2026, // If leave this empty, current year will be used.
   lang: "zh-HK", // ['en-US', 'zh-CN', 'zh-HK', 'zh-TW', 'ja-JP', 'es-ES', 'ko-KR']
-  ogImageGenerateURL: "https://og-image-korean.vercel.app", // The link to generate OG image, don't end with a slash
+  ogImageGenerateURL: "https://starlight-hk.vercel.app/api/og", // The link to generate OG image, don't end with a slash
 
   // notion configuration (required)
   notionConfig: {

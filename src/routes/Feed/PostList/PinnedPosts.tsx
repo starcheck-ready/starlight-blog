@@ -5,22 +5,19 @@ import styled from "@emotion/styled"
 import { filterPosts } from "./filterPosts"
 import { DEFAULT_CATEGORY } from "src/constants"
 
-type Props = {
-  q: string
-}
+type Props = {}
 
-const PinnedPosts: React.FC<Props> = ({ q }) => {
+const PinnedPosts: React.FC<Props> = () => {
   const data = usePostsQuery()
 
   const filteredPosts = useMemo(() => {
     const baseFiltered = filterPosts({
       posts: data,
-      q,
       category: DEFAULT_CATEGORY,
       order: "desc",
     })
     return baseFiltered.filter((post) => post.tags?.includes("Pinned"))
-  }, [data, q])
+  }, [data])
 
   if (filteredPosts.length === 0) return null
 

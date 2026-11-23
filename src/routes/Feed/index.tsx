@@ -1,6 +1,3 @@
-import { useState } from "react"
-
-import SearchInput from "./SearchInput"
 import { FeedHeader } from "./FeedHeader"
 import Footer from "./Footer"
 import styled from "@emotion/styled"
@@ -17,8 +14,6 @@ const HEADER_HEIGHT = 73
 type Props = {}
 
 const Feed: React.FC<Props> = () => {
-  const [q, setQ] = useState("")
-
   return (
     <StyledWrapper>
       <div
@@ -31,13 +26,12 @@ const Feed: React.FC<Props> = () => {
       </div>
       <div className="mid">
         <MobileProfileCard />
-        <PinnedPosts q={q} />
-        <SearchInput value={q} onChange={(e) => setQ(e.target.value)} />
+        <PinnedPosts />
         <div className="tags">
           <TagList />
         </div>
         <FeedHeader />
-        <PostList q={q} />
+        <PostList />
         <div className="footer">
           <Footer />
         </div>

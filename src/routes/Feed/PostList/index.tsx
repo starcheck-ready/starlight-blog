@@ -4,11 +4,9 @@ import PostCard from "src/routes/Feed/PostList/PostCard"
 import { DEFAULT_CATEGORY } from "src/constants"
 import usePostsQuery from "src/hooks/usePostsQuery"
 
-type Props = {
-  q: string
-}
+type Props = {}
 
-const PostList: React.FC<Props> = ({ q }) => {
+const PostList: React.FC<Props> = () => {
   const router = useRouter()
   const data = usePostsQuery()
   const [filteredPosts, setFilteredPosts] = useState(data)
@@ -20,12 +18,6 @@ const PostList: React.FC<Props> = ({ q }) => {
   useEffect(() => {
     setFilteredPosts(() => {
       let newFilteredPosts = data
-      // keyword
-      newFilteredPosts = newFilteredPosts.filter((post) => {
-        const tagContent = post.tags ? post.tags.join(" ") : ""
-        const searchContent = post.title + post.summary + tagContent
-        return searchContent.toLowerCase().includes(q.toLowerCase())
-      })
 
       // tag
       if (currentTag) {
@@ -54,7 +46,7 @@ const PostList: React.FC<Props> = ({ q }) => {
 
       return newFilteredPosts
     })
-  }, [q, currentTag, currentCategory, currentOrder, setFilteredPosts])
+  }, [currentTag, currentCategory, currentOrder, setFilteredPosts])
 
   return (
     <>

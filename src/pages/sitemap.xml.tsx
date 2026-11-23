@@ -45,6 +45,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // Include static pages separately
   fields.unshift(
     {
+      loc: `${CONFIG.link}/projects`,
+      lastmod: new Date().toISOString(),
+      priority: 0.8,
+      changefreq: "daily",
+    },
+    {
       loc: `${CONFIG.link}/archive`,
       lastmod: new Date().toISOString(),
       priority: 0.8,
