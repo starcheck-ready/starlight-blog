@@ -57,6 +57,9 @@ const Archive: React.FC = () => {
                 <Link href={`/${post.slug}`}>
                   <span className="date">{formatMonthDay(post)}</span>
                   <span className="title">{post.title}</span>
+                  {post.status?.[0] === "Outdated" && (
+                    <span className="badge">已過時</span>
+                  )}
                   <span className="arrow" aria-hidden="true">
                     →
                   </span>
@@ -172,6 +175,16 @@ const StyledWrapper = styled.div`
         color: ${({ theme }) => theme.colors.gray9};
         opacity: 0;
         transition: opacity 200ms;
+      }
+
+      > .badge {
+        flex-shrink: 0;
+        padding: 0.1rem 0.4rem;
+        border-radius: 0.375rem;
+        background-color: ${({ theme }) => theme.colors.gray5};
+        color: ${({ theme }) => theme.colors.gray10};
+        font-size: 0.6875rem;
+        line-height: 1rem;
       }
     }
   }

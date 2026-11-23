@@ -45,7 +45,7 @@ const Projects: React.FC = () => {
                   fill
                   alt={project.name}
                   sizes="(min-width: 768px) 420px, 100vw"
-                  css={{ objectFit: "cover" }}
+                  css={{ objectFit: "contain" }}
                 />
               ) : (
                 <span className="placeholder">

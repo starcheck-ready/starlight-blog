@@ -5,6 +5,7 @@ import { NextPageWithLayout } from "../types"
 import CustomError from "src/routes/Error"
 import { getRecordMap, getPosts } from "src/apis"
 import MetaConfig from "src/components/MetaConfig"
+import { getOgImageUrl } from "src/libs/ogImage"
 import { GetStaticProps } from "next"
 import { queryClient } from "src/libs/react-query"
 import { queryKey } from "src/constants/queryKey"
@@ -13,7 +14,7 @@ import usePostQuery from "src/hooks/usePostQuery"
 import { FilterPostsOptions } from "src/libs/utils/notion/filterPosts"
 
 const filter: FilterPostsOptions = {
-  acceptStatus: ["Public", "PublicOnDetail"],
+  acceptStatus: ["Public", "PublicOnDetail", "Outdated"],
   acceptType: ["Paper", "Post", "Page"],
 }
 
@@ -36,6 +37,9 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   const detailPosts = filterPosts(posts, filter)
   const postDetail = detailPosts.find((t: any) => t.slug === slug)
+  if (!postDetail) {
+    return { notFound: true, revalidate: CONFIG.revalidateTime }
+  }
   const recordMap = await getRecordMap(postDetail?.id!)
 
   await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => ({
@@ -58,14 +62,13 @@ const DetailPage: NextPageWithLayout = () => {
 
   const date = post.date?.start_date || post.createdTime || ""
 
-  const image = CONFIG.ogImageGenerateURL
-    ? `${CONFIG.ogImageGenerateURL}?${new URLSearchParams({
-        title: post.title,
-        description: post.summary || "",
-        category: post.category?.[0] || "",
-        date,
-      }).toString()}`
-    : post.thumbnail
+  const image =
+    getOgImageUrl({
+      title: post.title,
+      description: post.summary || "",
+      category: post.category?.[0],
+      date,
+    }) ?? post.thumbnail
 
   const meta = {
     title: post.title,
@@ -74,6 +77,7 @@ const DetailPage: NextPageWithLayout = () => {
     description: post.summary || "",
     type: post.type[0],
     url: `${CONFIG.link}/${post.slug}`,
+    noindex: post.status?.[0] === "Outdated",
   }
 
   return (

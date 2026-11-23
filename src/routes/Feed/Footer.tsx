@@ -1,4 +1,5 @@
 import { CONFIG } from "site.config"
+import Link from "next/link"
 import React from "react"
 import styled from "@emotion/styled"
 
@@ -20,6 +21,10 @@ const Footer: React.FC<Props> = ({ className }) => {
       >
         © {CONFIG.profile.name} {from === y || !from ? y : `${from} - ${y}`}
       </a>
+      <span className="sep" aria-hidden="true">
+        ·
+      </span>
+      <Link href="/terms">使用條款</Link>
     </StyledWrapper>
   )
 }
@@ -27,10 +32,26 @@ const Footer: React.FC<Props> = ({ className }) => {
 export default Footer
 
 const StyledWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+
   a {
     margin-top: 0.75rem;
     font-size: 0.875rem;
     line-height: 1.25rem;
     color: ${({ theme }) => theme.colors.gray10};
+
+    :hover {
+      color: ${({ theme }) => theme.colors.gray12};
+    }
+  }
+
+  .sep {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: ${({ theme }) => theme.colors.gray9};
   }
 `

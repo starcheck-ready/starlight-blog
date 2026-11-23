@@ -56,6 +56,7 @@ const PostDetail: React.FC<Props> = () => {
 
   const category = (data.category && data.category?.[0]) || undefined
   const isPublicPost = data.status?.[0] === "Public"
+  const isOutdated = data.status?.[0] === "Outdated"
   const showToc = toc.length >= 2
 
   return (
@@ -69,6 +70,14 @@ const PostDetail: React.FC<Props> = () => {
                 <Category readOnly={data.status?.[0] === "PublicOnDetail"}>
                   {category}
                 </Category>
+              </div>
+            )}
+            {isOutdated && (
+              <div className="outdated" role="note">
+                <strong>⚠️ 內容已過時</strong>
+                <span>
+                  這篇的資料已被確認有誤或不再適用，僅保留作為紀錄參考。
+                </span>
               </div>
             )}
             {data.type[0] === "Post" && (
@@ -136,6 +145,24 @@ const StyledWrapper = styled.div`
       width: 100%;
       max-width: 42rem;
       min-width: 0;
+
+      > .outdated {
+        display: flex;
+        flex-direction: column;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        gap: 0.25rem;
+        border-radius: 0.75rem;
+        border: 1px solid ${({ theme }) => theme.colors.gray6};
+        background-color: ${({ theme }) => theme.colors.gray4};
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: ${({ theme }) => theme.colors.gray11};
+
+        strong {
+          color: ${({ theme }) => theme.colors.gray12};
+        }
+      }
     }
 
     > .toc {
