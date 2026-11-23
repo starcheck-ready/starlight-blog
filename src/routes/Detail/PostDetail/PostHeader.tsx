@@ -8,9 +8,10 @@ import styled from "@emotion/styled"
 
 type Props = {
   data: TPost
+  readingTime?: number
 }
 
-const PostHeader: React.FC<Props> = ({ data }) => {
+const PostHeader: React.FC<Props> = ({ data, readingTime }) => {
   return (
     <StyledWrapper>
       <h1 className="title">{data.title}</h1>
@@ -38,6 +39,12 @@ const PostHeader: React.FC<Props> = ({ data }) => {
                 CONFIG.lang
               )}
             </div>
+            {!!readingTime && (
+              <>
+                <div className="hr"></div>
+                <div className="reading-time">☕ 約 {readingTime} 分鐘</div>
+              </>
+            )}
           </div>
           <div className="mid">
             {data.tags && (
@@ -77,6 +84,7 @@ const StyledWrapper = styled.div`
     color: ${({ theme }) => theme.colors.gray11};
     > .top {
       display: flex;
+      flex-wrap: wrap;
       margin-bottom: 0.75rem;
       gap: 0.75rem;
       align-items: center;
@@ -98,6 +106,9 @@ const StyledWrapper = styled.div`
         @media (min-width: 768px) {
           margin-left: 0;
         }
+      }
+      .reading-time {
+        white-space: nowrap;
       }
     }
     > .mid {

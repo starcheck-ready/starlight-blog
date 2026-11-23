@@ -89,4 +89,7 @@ const StyledWrapper = styled.div`
   .notion-list {
     width: 100%;
   }
+  .notion-h {
+    scroll-margin-top: 4.5rem;
+  }
 `
