@@ -9,35 +9,13 @@ export const config = {
 const truncate = (value: string, max: number) =>
   value.length > max ? `${value.slice(0, max - 1)}…` : value
 
-const truncateClause = (value: string, max: number) => {
-  if (value.length <= max) return value
-
-  const slice = value.slice(0, max)
-  const cut = Math.max(
-    slice.lastIndexOf("，"),
-    slice.lastIndexOf("。"),
-    slice.lastIndexOf("、"),
-    slice.lastIndexOf("；")
-  )
-
-  if (cut > max - 20) return `${value.slice(0, cut)}…`
-  return `${value.slice(0, max - 1)}…`
-}
-
 export default async function handler(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const rawTitle = searchParams.get("title") || CONFIG.blog.title
-  const titleSize = rawTitle.length > 56 ? 54 : rawTitle.length > 32 ? 64 : 76
-  const titleMax = titleSize === 54 ? 60 : titleSize === 64 ? 44 : 28
-  const title = truncate(rawTitle, titleMax)
-  const description = truncateClause(
-    searchParams.get("description") || CONFIG.blog.description,
-    52
-  )
-  const category = truncate(searchParams.get("category") || "", 12)
+  const titleSize = rawTitle.length > 30 ? 46 : rawTitle.length > 18 ? 52 : 60
+  const title = truncate(rawTitle, 32)
   const date = truncate(searchParams.get("date") || "", 16)
   const domain = CONFIG.link.replace(/^https?:\/\//, "")
-  const showBrand = rawTitle !== CONFIG.blog.title
 
   const [boldFont, regularFont] = await Promise.all(
     ["bold", "regular"].map((weight) =>
@@ -57,7 +35,7 @@ export default async function handler(req: NextRequest) {
           display: "flex",
           width: "100%",
           height: "100%",
-          padding: "48px 64px",
+          padding: "56px 64px",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "space-between",
@@ -70,55 +48,25 @@ export default async function handler(req: NextRequest) {
         <div
           style={{
             display: "flex",
-            height: 34,
-            alignItems: "center",
-            gap: 12,
-            fontSize: 28,
-            color: "#a1a1aa",
-          }}
-        >
-          {showBrand && (
-            <>
-              <div
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 9999,
-                  backgroundColor: "#818cf8",
-                }}
-              />
-              <span>{CONFIG.blog.title}</span>
-            </>
-          )}
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            maxWidth: 760,
             flexDirection: "column",
             alignItems: "center",
-            textAlign: "center",
-            gap: 16,
+            gap: 24,
           }}
         >
-          {category ? (
-            <div
-              style={{
-                display: "flex",
-                padding: "6px 18px",
-                borderRadius: 9999,
-                backgroundColor: "rgba(129, 140, 248, 0.16)",
-                color: "#c7d2fe",
-                fontSize: 24,
-              }}
-            >
-              {category}
-            </div>
-          ) : null}
+          <img
+            src={new URL("/avatar.png", req.url).toString()}
+            width={300}
+            height={300}
+            style={{ borderRadius: 48 }}
+            alt=""
+          />
           <div
             style={{
+              display: "flex",
+              maxWidth: 820,
+              justifyContent: "center",
               overflow: "hidden",
+              textAlign: "center",
               fontSize: titleSize,
               fontWeight: 700,
               lineHeight: 1.2,
@@ -127,18 +75,6 @@ export default async function handler(req: NextRequest) {
           >
             {title}
           </div>
-          {description ? (
-            <div
-              style={{
-                overflow: "hidden",
-                fontSize: 28,
-                lineHeight: 1.45,
-                color: "#a1a1aa",
-              }}
-            >
-              {description}
-            </div>
-          ) : null}
         </div>
 
         <div

@@ -1,7 +1,7 @@
 import { CONFIG } from "site.config"
 
 // bump this when the OG layout changes so social platforms refetch the image
-const OG_VERSION = "2"
+const OG_VERSION = "3"
 
 type OgImageParams = {
   title: string
