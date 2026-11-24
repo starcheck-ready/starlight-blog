@@ -49,25 +49,34 @@ const StyledWrapper = styled.div`
   ul {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
     li {
       display: block;
-      margin-left: 1rem;
       color: ${({ theme }) => theme.colors.gray11};
 
       a {
         display: flex;
+        width: 2.125rem;
+        height: 2.125rem;
         align-items: center;
-        font-size: 1.25rem;
+        justify-content: center;
+        border-radius: 9999px;
+        font-size: 1.2rem;
       }
 
       a:hover {
+        background-color: ${({ theme }) => theme.colors.gray5};
         color: ${({ theme }) => theme.colors.gray12};
       }
     }
 
     @media (max-width: 480px) {
-      li {
-        margin-left: 0.75rem;
+      li a {
+        width: 2rem;
+        height: 2rem;
       }
     }
   }

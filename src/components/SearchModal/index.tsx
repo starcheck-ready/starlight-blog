@@ -205,15 +205,15 @@ export default GlobalSearch
 
 const Trigger = styled.button`
   display: flex;
-  padding: 0.35rem 0.5rem;
+  padding: 0 0.625rem;
+  height: 2.125rem;
   gap: 0.35rem;
   align-items: center;
   border: none;
-  border-radius: 0.75rem;
-  background-color: ${({ theme }) => theme.colors.gray4};
+  border-radius: 9999px;
+  background-color: transparent;
   color: ${({ theme }) => theme.colors.gray11};
-  font-size: 1rem;
-  line-height: 1.25rem;
+  font-size: 1.1rem;
   cursor: pointer;
 
   :hover {
@@ -229,6 +229,11 @@ const Trigger = styled.button`
   }
 
   @media (max-width: 768px) {
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    justify-content: center;
+
     > .hint {
       display: none;
     }

@@ -51,11 +51,15 @@ const StyledWrapper = styled.div`
     }
     .nav {
       display: flex;
-      gap: 0.75rem;
+      padding: 0.1875rem;
+      gap: 0.25rem;
       align-items: center;
+      border-radius: 9999px;
+      background-color: ${({ theme }) => theme.colors.gray4};
 
       @media (max-width: 480px) {
-        gap: 0.5rem;
+        padding: 0.125rem;
+        gap: 0;
       }
     }
   }

@@ -27,10 +27,23 @@ export default ThemeToggle
 
 const StyledWrapper = styled.button`
   display: inline-flex;
+  width: 2.125rem;
+  height: 2.125rem;
   padding: 0;
   align-items: center;
   justify-content: center;
   border: none;
+  border-radius: 9999px;
   background: transparent;
+  font-size: 1rem;
   cursor: pointer;
+
+  :hover {
+    background-color: ${({ theme }) => theme.colors.gray5};
+  }
+
+  @media (max-width: 480px) {
+    width: 2rem;
+    height: 2rem;
+  }
 `
