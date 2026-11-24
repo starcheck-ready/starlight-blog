@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import {
   MdOutlineArchive,
+  MdOutlineBookmarkBorder,
   MdOutlineFolderOpen,
   MdOutlinePersonOutline,
   MdOutlineRssFeed,
@@ -11,6 +12,7 @@ const links = [
   { id: 1, name: "About", to: "/about", icon: MdOutlinePersonOutline },
   { id: 2, name: "Archive", to: "/archive", icon: MdOutlineArchive },
   { id: 3, name: "Projects", to: "/projects", icon: MdOutlineFolderOpen },
+  { id: 4, name: "Saved", to: "/saved", icon: MdOutlineBookmarkBorder },
 ]
 
 const NavBar: React.FC = () => {

@@ -103,6 +103,15 @@ const StyledWrapper = styled.div`
   .notion-h {
     scroll-margin-top: 4.5rem;
   }
+  .notion-hash-link--copied {
+    opacity: 1 !important;
+    fill: #4ade80;
+  }
+  @media (hover: none) {
+    .notion-hash-link {
+      opacity: 0.4;
+    }
+  }
   .notion-to-do:has(.notion-property-checkbox[aria-checked="true"])
     .notion-to-do-body {
     text-decoration: line-through;

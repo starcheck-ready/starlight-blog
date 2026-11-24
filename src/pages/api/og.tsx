@@ -53,6 +53,7 @@ export default async function handler(req: NextRequest) {
             gap: 24,
           }}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={new URL("/avatar.png", req.url).toString()}
             width={300}

@@ -8,6 +8,9 @@ import NotionRenderer from "../components/NotionRenderer"
 import usePostQuery from "src/hooks/usePostQuery"
 import usePostsQuery from "src/hooks/usePostsQuery"
 import ReadingProgress from "./ReadingProgress"
+import ReadingPosition from "./ReadingPosition"
+import HeadingLinks from "./HeadingLinks"
+import BookmarkButton from "./BookmarkButton"
 import TableOfContents from "./TableOfContents"
 import PostNavigation from "./PostNavigation"
 import RelatedPosts from "./RelatedPosts"
@@ -62,16 +65,21 @@ const PostDetail: React.FC<Props> = () => {
   return (
     <>
       <ReadingProgress targetRef={wrapperRef} />
+      <ReadingPosition postId={data.id} />
+      <HeadingLinks containerRef={wrapperRef} />
       <StyledWrapper ref={wrapperRef}>
         <div className="layout" data-toc={showToc}>
           <article>
-            {category && (
-              <div css={{ marginBottom: "0.5rem" }}>
-                <Category readOnly={data.status?.[0] === "PublicOnDetail"}>
-                  {category}
-                </Category>
+            <div className="actions">
+              <div>
+                {category && (
+                  <Category readOnly={data.status?.[0] === "PublicOnDetail"}>
+                    {category}
+                  </Category>
+                )}
               </div>
-            )}
+              {data.type[0] === "Post" && <BookmarkButton slug={data.slug} />}
+            </div>
             {isOutdated && (
               <div className="outdated" role="note">
                 <strong>⚠️ 內容已過時</strong>
@@ -145,6 +153,14 @@ const StyledWrapper = styled.div`
       width: 100%;
       max-width: 42rem;
       min-width: 0;
+
+      > .actions {
+        display: flex;
+        margin-bottom: 0.5rem;
+        gap: 0.5rem;
+        justify-content: space-between;
+        align-items: center;
+      }
 
       > .outdated {
         display: flex;

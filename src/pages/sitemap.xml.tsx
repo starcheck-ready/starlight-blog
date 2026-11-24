@@ -7,7 +7,7 @@ import { GetServerSideProps } from "next"
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const posts = await getPosts()
   const feedPosts = filterPosts(posts)
-  const dynamicPaths = posts.map((post) => `${CONFIG.link}/${post.slug}`)
+  const dynamicPaths = feedPosts.map((post) => `${CONFIG.link}/${post.slug}`)
 
   // Create an array of fields, each with a loc and lastmod
   const fields: ISitemapField[] = dynamicPaths.map((path) => ({
@@ -46,6 +46,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   fields.unshift(
     {
       loc: `${CONFIG.link}/projects`,
+      lastmod: new Date().toISOString(),
+      priority: 0.8,
+      changefreq: "daily",
+    },
+    {
+      loc: `${CONFIG.link}/guides`,
       lastmod: new Date().toISOString(),
       priority: 0.8,
       changefreq: "daily",

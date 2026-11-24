@@ -43,6 +43,10 @@ const Archive: React.FC = () => {
           <Emoji>🗂️</Emoji> Archive
         </h1>
         <p>共 {posts.length} 篇文章，依年份排列。</p>
+        <div className="links">
+          <Link href="/guides">🎮 攻略總覽</Link>
+          <Link href="/status">🩺 內容健檢</Link>
+        </div>
       </div>
       {groups.length === 0 && <p className="empty">還沒有文章。</p>}
       {groups.map(({ year, posts: yearPosts }) => (
@@ -100,6 +104,19 @@ const StyledWrapper = styled.div`
       font-size: 0.875rem;
       line-height: 1.25rem;
       color: ${({ theme }) => theme.colors.gray11};
+    }
+
+    > .links {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: ${({ theme }) => theme.colors.gray10};
+
+      a:hover {
+        color: ${({ theme }) => theme.colors.gray12};
+      }
     }
   }
 
