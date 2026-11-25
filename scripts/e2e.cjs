@@ -3,14 +3,15 @@
  *
  * 用法：
  *   1. 先啟動服務：yarn build && yarn start -p 3000
- *   2. 執行：yarn e2e
+ *   2. 執行一次：yarn e2e
+ *      修改檔案後自動重跑：yarn e2e:watch
  *
  * 可用環境變數覆寫：
  *   E2E_BASE_URL  (預設 http://localhost:3000)
  *   E2E_ARTICLE   (預設 /build-free-blog-in-30-mins)
  *   E2E_OUT_DIR   (截圖輸出目錄，預設 <tmp>/starlight-e2e)
  */
-const { app, BrowserWindow } = require("electron")
+const { app, BrowserWindow, session } = require("electron")
 const fs = require("node:fs")
 const os = require("node:os")
 const path = require("node:path")
@@ -19,21 +20,27 @@ const BASE_URL = process.env.E2E_BASE_URL || "http://localhost:3000"
 const ARTICLE_PATH = process.env.E2E_ARTICLE || "/build-free-blog-in-30-mins"
 const OUT_DIR =
   process.env.E2E_OUT_DIR || path.join(os.tmpdir(), "starlight-e2e")
-
-const results = []
+const WATCH = process.argv.includes("--watch")
+const WATCH_TARGETS = ["src", "site.config.ts"]
+const watchers = []
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const check = (name, ok, detail = "") => {
-  results.push({ name, ok, detail })
-  console.log(
-    `${ok ? "PASS" : "FAIL"} | ${name}${detail ? ` | ${detail}` : ""}`
-  )
-}
-
 const evaluate = (win, code) => win.webContents.executeJavaScript(code, true)
 
-async function waitFor(fn, { timeout = 20000, interval = 200 } = {}) {
+async function withTimeout(promise, ms, label) {
+  let timer
+  const timeout = new Promise((_resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} 逾時 ${ms}ms`)), ms)
+  })
+  try {
+    return await Promise.race([promise, timeout])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+async function waitFor(fn, { timeout = 15000, interval = 100 } = {}) {
   const deadline = Date.now() + timeout
   while (Date.now() < deadline) {
     try {
@@ -46,27 +53,73 @@ async function waitFor(fn, { timeout = 20000, interval = 200 } = {}) {
   return false
 }
 
-const isHydrated = (win) =>
-  waitFor(() => evaluate(win, "Boolean(window.next && window.next.router)"))
-
-async function goto(win, urlPath) {
-  await win.loadURL(`${BASE_URL}${urlPath}`)
-  const hydrated = await isHydrated(win)
-  await sleep(600)
-  return hydrated
-}
-
 async function screenshot(win, filename, clip) {
   const image = await win.webContents.capturePage(clip)
-  const target = path.join(OUT_DIR, filename)
-  fs.writeFileSync(target, image.toPNG())
-  return target
+  fs.writeFileSync(path.join(OUT_DIR, filename), image.toPNG())
 }
 
-async function main() {
-  fs.mkdirSync(OUT_DIR, { recursive: true })
+function createRecorder() {
+  const items = []
+  const record = (name, ok, detail = "") => {
+    items.push({ name, ok, detail })
+    console.log(
+      `${ok ? "PASS" : "FAIL"} | ${name}${detail ? ` | ${detail}` : ""}`
+    )
+  }
+  return { items, record }
+}
 
-  const window = new BrowserWindow({
+/** 載入頁面並等到「已 hydration + 目標元素出現」 */
+async function goto(win, urlPath, readySelector, timeout = 30000) {
+  await withTimeout(
+    win.loadURL(`${BASE_URL}${urlPath}`),
+    timeout,
+    `載入 ${urlPath}`
+  )
+  return waitFor(
+    () =>
+      evaluate(
+        win,
+        `Boolean(window.next && window.next.router)
+          && Boolean(document.querySelector(${JSON.stringify(readySelector)}))`
+      ),
+    { timeout }
+  )
+}
+
+/** 等版面穩定（連續兩次量到的位置大小一致），避免在字型/圖片載入中量測 */
+async function waitStableLayout(win, selector, timeout = 3000) {
+  let last = ""
+  return waitFor(
+    async () => {
+      const rect = await evaluate(
+        win,
+        `(() => {
+          const el = document.querySelector(${JSON.stringify(selector)})
+          if (!el) return null
+          const box = el.getBoundingClientRect()
+          return [box.x, box.y, box.width, box.height]
+            .map((value) => Math.round(value * 10) / 10)
+            .join(",")
+        })()`
+      )
+      if (!rect) return false
+      const stable = rect === last
+      last = rect
+      return stable
+    },
+    { timeout, interval: 100 }
+  )
+}
+
+async function runSuite() {
+  const { items, record } = createRecorder()
+
+  await session.defaultSession
+    .clearStorageData({ storages: ["localstorage"] })
+    .catch(() => {})
+
+  const win = new BrowserWindow({
     width: 1280,
     height: 900,
     show: false,
@@ -79,237 +132,345 @@ async function main() {
   })
 
   const consoleErrors = []
-  window.webContents.on("console-message", (event) => {
-    const value = event && event.level !== undefined ? event.level : undefined
-    const text =
-      event && event.message !== undefined ? event.message : String(event)
-    if (value === "error" || value === 3) consoleErrors.push(String(text))
+  win.webContents.on("console-message", (event) => {
+    const level = event && event.level
+    const message = event && event.message
+    if (level === "error") consoleErrors.push(String(message))
   })
-  window.webContents.on("render-process-gone", (_event, details) => {
+  win.webContents.on("render-process-gone", (_event, details) => {
     consoleErrors.push(`render-process-gone: ${details.reason}`)
   })
-  window.webContents.on("did-fail-load", (_event, code, description, url) => {
+  win.webContents.on("did-fail-load", (_event, code, description, url) => {
     consoleErrors.push(`did-fail-load(${code}) ${description} ${url}`)
   })
 
-  // ---------- 文章頁：字級控制 ----------
-  const articleHydrated = await goto(window, ARTICLE_PATH)
-  check("文章頁 hydration 成功", articleHydrated)
+  try {
+    // ---------- 文章頁：字級控制 ----------
+    const articleReady = await goto(
+      win,
+      ARTICLE_PATH,
+      '[aria-label="文章字級"]'
+    )
+    record("文章頁 hydration 成功", articleReady)
+    if (!articleReady) {
+      const diag = await evaluate(
+        win,
+        `({
+          url: location.href,
+          next: Boolean(window.next),
+          router: Boolean(window.next && window.next.router),
+          selector: Boolean(document.querySelector('[aria-label="文章字級"]')),
+        })`
+      )
+      console.log(`  ↳ 診斷：${JSON.stringify(diag)}`)
+      return items
+    }
 
-  const initialScale = await evaluate(
-    window,
-    "document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale')"
-  )
-  check("預設字級為 medium", initialScale === "medium", `got=${initialScale}`)
+    await waitStableLayout(win, '[aria-label="文章字級"]')
 
-  const settings = await evaluate(
-    window,
-    `(() => {
-      const group = document.querySelector('[aria-label="文章字級"]')
-      if (!group) return null
-      const buttons = [...group.querySelectorAll('button')]
-      return {
-        labels: buttons.map((button) => button.textContent.trim()),
-        offsets: buttons.map((button) => {
-          const box = button.getBoundingClientRect()
-          const range = document.createRange()
-          range.selectNodeContents(button)
-          const text = range.getBoundingClientRect()
-          return Math.round(((text.top + text.bottom) / 2 - (box.top + box.bottom) / 2) * 10) / 10
-        }),
-        sizes: buttons.map((button) => {
-          const box = button.getBoundingClientRect()
-          return [Math.round(box.width), Math.round(box.height)]
-        }),
-      }
-    })()`
-  )
+    const initialScale = await evaluate(
+      win,
+      "document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale')"
+    )
+    record(
+      "預設字級為 medium",
+      initialScale === "medium",
+      `got=${initialScale}`
+    )
 
-  check(
-    "字級按鈕為 小/中/大",
-    settings?.labels?.join(",") === "小,中,大",
-    JSON.stringify(settings?.labels)
-  )
-  check(
-    "大/中/小 文字垂直置中（偏移 ≤1.5px）",
-    !!settings && settings.offsets.every((offset) => Math.abs(offset) <= 1.5),
-    `offsets=${JSON.stringify(settings?.offsets)} sizes=${JSON.stringify(
-      settings?.sizes
-    )}`
-  )
+    const settings = await evaluate(
+      win,
+      `(() => {
+        const group = document.querySelector('[aria-label="文章字級"]')
+        if (!group) return null
+        const buttons = [...group.querySelectorAll('button')]
+        return {
+          labels: buttons.map((button) => button.textContent.trim()),
+          offsets: buttons.map((button) => {
+            const box = button.getBoundingClientRect()
+            const range = document.createRange()
+            range.selectNodeContents(button)
+            const text = range.getBoundingClientRect()
+            return Math.round(((text.top + text.bottom) / 2 - (box.top + box.bottom) / 2) * 10) / 10
+          }),
+          sizes: buttons.map((button) => {
+            const box = button.getBoundingClientRect()
+            return [Math.round(box.width), Math.round(box.height)]
+          }),
+        }
+      })()`
+    )
 
-  const boxRect = await evaluate(
-    window,
-    `(() => {
-      const box = document.querySelector('[aria-label="文章字級"]').getBoundingClientRect()
-      return { x: box.x - 8, y: box.y - 8, width: box.width + 16, height: box.height + 16 }
-    })()`
-  )
-  await screenshot(window, "01-reading-settings.png", boxRect)
+    record(
+      "字級按鈕為 小/中/大",
+      settings?.labels?.join(",") === "小,中,大",
+      JSON.stringify(settings?.labels)
+    )
+    record(
+      "大/中/小 文字垂直置中（偏移 ≤1.5px）",
+      !!settings && settings.offsets.every((offset) => Math.abs(offset) <= 1.5),
+      `offsets=${JSON.stringify(settings?.offsets)} sizes=${JSON.stringify(
+        settings?.sizes
+      )}`
+    )
 
-  await evaluate(
-    window,
-    `document.querySelector('[aria-label="文章字級"] button[aria-label="字級大"]').click()`
-  )
-  await sleep(700)
+    const pillRect = await evaluate(
+      win,
+      `(() => {
+        const box = document.querySelector('[aria-label="文章字級"]').getBoundingClientRect()
+        return { x: box.x - 8, y: box.y - 8, width: box.width + 16, height: box.height + 16 }
+      })()`
+    )
+    await screenshot(win, "01-reading-settings.png", pillRect)
 
-  const afterClick = await evaluate(
-    window,
-    `({
-      scale: document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale'),
-      stored: localStorage.getItem('starlight:reading-scale'),
-      fontSize: getComputedStyle(document.querySelector('.notion')).fontSize,
-      errors: window.__e2eErrors || [],
-    })`
-  )
-  check(
-    "點擊「大」字級生效",
-    afterClick.scale === "large",
-    `scale=${afterClick.scale}`
-  )
-  check(
-    "字級寫入 localStorage",
-    afterClick.stored === "large",
-    `stored=${afterClick.stored}`
-  )
-  check(
-    "內文實際變大（18px）",
-    afterClick.fontSize === "18px",
-    `fontSize=${afterClick.fontSize}`
-  )
-  check(
-    "點擊過程無 JS 錯誤",
-    afterClick.errors.length === 0,
-    JSON.stringify(afterClick.errors)
-  )
+    await evaluate(
+      win,
+      `document.querySelector('[aria-label="文章字級"] button[aria-label="字級大"]').click()`
+    )
+    const switched = await waitFor(
+      () =>
+        evaluate(
+          win,
+          `document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale') === "large"`
+        ),
+      { timeout: 5000 }
+    )
+    record("點擊「大」字級立即生效", switched)
 
-  await screenshot(window, "02-article-large.png")
+    const afterClick = await evaluate(
+      win,
+      `({
+        scale: document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale'),
+        stored: localStorage.getItem('starlight:reading-scale'),
+        fontSize: getComputedStyle(document.querySelector('.notion')).fontSize,
+        errors: window.__e2eErrors || [],
+      })`
+    )
+    record(
+      "字級寫入 localStorage",
+      afterClick.stored === "large",
+      `stored=${afterClick.stored}`
+    )
+    record(
+      "內文實際變大（18px）",
+      afterClick.fontSize === "18px",
+      `fontSize=${afterClick.fontSize}`
+    )
+    record(
+      "點擊過程無 JS 錯誤",
+      afterClick.errors.length === 0,
+      JSON.stringify(afterClick.errors)
+    )
 
-  // ---------- 重新載入：字級是否保留 ----------
-  window.webContents.reload()
-  const reloadedHydrated = await isHydrated(window)
-  await sleep(800)
-  const afterReload = await evaluate(
-    window,
-    `({
-      scale: document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale'),
-      fontSize: getComputedStyle(document.querySelector('.notion')).fontSize,
-      errors: window.__e2eErrors || [],
-    })`
-  )
-  check("重新載入後 hydration 成功", reloadedHydrated)
-  check(
-    "重新載入後字級保留 large",
-    afterReload.scale === "large",
-    `scale=${afterReload.scale}`
-  )
-  check(
-    "重新載入後內文仍為 18px",
-    afterReload.fontSize === "18px",
-    `fontSize=${afterReload.fontSize}`
-  )
+    await screenshot(win, "02-article-large.png")
 
-  // ---------- 內頁：返回 + 首頁按鈕 ----------
-  const archiveHydrated = await goto(window, "/archive")
-  check("Archive 頁 hydration 成功", archiveHydrated)
+    // ---------- 重新載入：字級是否保留 ----------
+    // 先把 localStorage 寫入磁碟，否則緊接 reload 會讀不到（Chromium 非同步落盤）
+    await session.defaultSession.flushStorageData()
+    win.webContents.reload()
+    const reloadedReady = await waitFor(
+      () =>
+        evaluate(
+          win,
+          `Boolean(window.next && window.next.router)
+            && Boolean(document.querySelector('[aria-label="文章字級"]'))`
+        ),
+      { timeout: 30000 }
+    )
+    record("重新載入後 hydration 成功", reloadedReady)
 
-  const nav = await evaluate(
-    window,
-    `({
-      back: !!document.querySelector('[aria-label="返回"]'),
-      home: !!document.querySelector('[aria-label="首頁"]'),
-      homeTitle: document.querySelector('[aria-label="首頁"]')?.getAttribute('title') || null,
-    })`
-  )
-  check("非首頁顯示「返回」按鈕", nav.back)
-  check("非首頁顯示「首頁」按鈕", nav.home, `title=${nav.homeTitle}`)
+    // SSR 一律輸出 medium，要等 useEffect 讀回 localStorage 後才會變 large
+    const keptScale = await waitFor(
+      () =>
+        evaluate(
+          win,
+          `document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale') === "large"`
+        ),
+      { timeout: 5000 }
+    )
+    record("重新載入後字級保留 large", keptScale)
 
-  await screenshot(window, "03-archive-header.png", {
-    x: 0,
-    y: 0,
-    width: 1280,
-    height: 90,
-  })
+    const afterReload = await evaluate(
+      win,
+      `({ fontSize: getComputedStyle(document.querySelector('.notion')).fontSize })`
+    )
+    record(
+      "重新載入後內文仍為 18px",
+      afterReload.fontSize === "18px",
+      `fontSize=${afterReload.fontSize}`
+    )
 
-  await evaluate(
-    window,
-    `document.querySelector('[aria-label="首頁"]').click()`
-  )
-  const wentHome = await waitFor(
-    async () => (await evaluate(window, "location.pathname")) === "/",
-    { timeout: 15000 }
-  )
-  check(
-    "點擊「首頁」回到 /",
-    wentHome,
-    `path=${await evaluate(window, "location.pathname")}`
-  )
+    // ---------- 內頁：返回 + 首頁按鈕 ----------
+    const archiveReady = await goto(win, "/archive", '[aria-label="首頁"]')
+    record("Archive 頁 hydration 成功", archiveReady)
 
-  const homeNav = await evaluate(
-    window,
-    `({
-      home: !!document.querySelector('[aria-label="首頁"]'),
-      back: !!document.querySelector('[aria-label="返回"]'),
-      title: document.querySelector('.container > a[href="/"]')?.textContent?.trim() || null,
-    })`
-  )
-  check("首頁不顯示返回/首頁按鈕", !homeNav.home && !homeNav.back)
-  check("首頁左上顯示站名", !!homeNav.title, `title=${homeNav.title}`)
+    const nav = archiveReady
+      ? await evaluate(
+          win,
+          `({
+            back: !!document.querySelector('[aria-label="返回"]'),
+            home: !!document.querySelector('[aria-label="首頁"]'),
+            homeTitle: document.querySelector('[aria-label="首頁"]')?.getAttribute('title') || null,
+          })`
+        )
+      : {}
+    record("非首頁顯示「返回」按鈕", nav.back === true)
+    record(
+      "非首頁顯示「首頁」按鈕",
+      nav.home === true,
+      `title=${nav.homeTitle}`
+    )
 
-  await screenshot(window, "04-home.png")
+    await screenshot(win, "03-archive-header.png", {
+      x: 0,
+      y: 0,
+      width: 1280,
+      height: 90,
+    })
 
-  // ---------- 總結 ----------
-  const pageErrors = await evaluate(window, "window.__e2eErrors || []")
-  check(
-    "全程無未捕捉錯誤 / console error",
-    pageErrors.length === 0 && consoleErrors.length === 0,
-    JSON.stringify({ pageErrors, consoleErrors })
-  )
+    const clicked = await evaluate(
+      win,
+      `(() => {
+        const button = document.querySelector('[aria-label="首頁"]')
+        if (!button) return false
+        button.click()
+        return true
+      })()`
+    )
+    const wentHome =
+      clicked &&
+      (await waitFor(
+        async () => (await evaluate(win, "location.pathname")) === "/",
+        {
+          timeout: 10000,
+        }
+      ))
+    record(
+      "點擊「首頁」回到 /",
+      wentHome,
+      `path=${await evaluate(win, "location.pathname")}`
+    )
 
-  const failed = results.filter((result) => !result.ok)
-  console.log("")
+    const homeNav = wentHome
+      ? await evaluate(
+          win,
+          `({
+            home: !!document.querySelector('[aria-label="首頁"]'),
+            back: !!document.querySelector('[aria-label="返回"]'),
+            title: document.querySelector('.container > a[href="/"]')?.textContent?.trim() || null,
+          })`
+        )
+      : {}
+    record("首頁不顯示返回/首頁按鈕", !homeNav.home && !homeNav.back)
+    record("首頁左上顯示站名", !!homeNav.title, `title=${homeNav.title}`)
+
+    await screenshot(win, "04-home.png")
+
+    // ---------- 總結 ----------
+    const pageErrors = await evaluate(win, "window.__e2eErrors || []")
+    record(
+      "全程無未捕捉錯誤 / console error",
+      pageErrors.length === 0 && consoleErrors.length === 0,
+      JSON.stringify({ pageErrors, consoleErrors })
+    )
+  } finally {
+    win.destroy()
+  }
+
+  return items
+}
+
+async function execute() {
+  const startedAt = Date.now()
+  console.log(`\n=== E2E ${new Date().toLocaleTimeString("zh-TW")} ===`)
+  const items = await runSuite()
+  const failed = items.filter((item) => !item.ok)
   console.log(
-    `=== ${results.length - failed.length}/${results.length} PASS ===`
+    `=== ${items.length - failed.length}/${items.length} PASS · ${(
+      (Date.now() - startedAt) /
+      1000
+    ).toFixed(1)}s === 截圖：${OUT_DIR}`
   )
-  console.log(`截圖輸出：${OUT_DIR}`)
-
-  return failed.length === 0 ? 0 : 1
+  return failed.length === 0
 }
 
 app.disableHardwareAcceleration()
 app.commandLine.appendSwitch("disable-gpu")
 
+// 預設「所有視窗關閉就退出」會讓 watch 模式跑完第一輪就結束，這裡接管退出時機
+app.on("window-all-closed", () => {
+  // 一次性模式由 app.exit() 收尾；watch 模式需保持存活等待檔案變更
+})
+
 const profileDir = path.join(os.tmpdir(), "starlight-e2e-profile")
 fs.rmSync(profileDir, { recursive: true, force: true })
 app.setPath("userData", profileDir)
 
-const guard = setTimeout(() => {
-  console.log("FAIL | E2E 逾時（180s）")
-  app.exit(2)
-}, 180000)
-
 app.whenReady().then(async () => {
-  let code = 2
-  try {
-    const probe = await fetch(BASE_URL, { method: "HEAD" }).catch(() => null)
-    if (!probe) {
-      console.log(`FAIL | 無法連線 ${BASE_URL}，請先執行 yarn start -p 3000`)
-      app.exit(2)
+  fs.mkdirSync(OUT_DIR, { recursive: true })
+
+  const probe = await fetch(BASE_URL, { method: "HEAD" }).catch(() => null)
+  if (!probe) {
+    console.log(`FAIL | 無法連線 ${BASE_URL}，請先執行 yarn start -p 3000`)
+    app.exit(2)
+    return
+  }
+
+  if (!WATCH) {
+    let ok = false
+    try {
+      ok = await execute()
+    } catch (error) {
+      console.log(
+        `FAIL | E2E 執行例外：${error && error.stack ? error.stack : error}`
+      )
+    }
+    app.exit(ok ? 0 : 1)
+    return
+  }
+
+  let running = false
+  let pending = false
+
+  const rerun = async () => {
+    if (running) {
+      pending = true
       return
     }
-  } catch {
-    // 忽略，讓後續流程自行回報
+    running = true
+    try {
+      await execute()
+    } catch (error) {
+      console.log(
+        `FAIL | E2E 執行例外：${error && error.stack ? error.stack : error}`
+      )
+    }
+    running = false
+    if (pending) {
+      pending = false
+      await rerun()
+    }
   }
 
-  try {
-    code = await main()
-  } catch (error) {
-    console.log(
-      `FAIL | E2E 執行例外：${error && error.stack ? error.stack : error}`
-    )
-    code = 1
+  await rerun()
+
+  let timer = null
+  const onChange = () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      console.log("\n偵測到檔案變更，重新執行…")
+      rerun()
+    }, 300)
   }
 
-  clearTimeout(guard)
-  app.exit(code)
+  WATCH_TARGETS.forEach((target) => {
+    const full = path.join(process.cwd(), target)
+    if (!fs.existsSync(full)) return
+    watchers.push(fs.watch(full, { recursive: true }, onChange))
+    console.log(`監看：${full}`)
+  })
+
+  console.log(
+    "\nwatch 模式：修改 src/ 或 site.config.ts 會自動重跑（Ctrl+C 結束）"
+  )
 })

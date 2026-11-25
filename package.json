@@ -11,7 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "e2e": "electron scripts/e2e.cjs"
+    "e2e": "electron scripts/e2e.cjs",
+    "e2e:watch": "electron scripts/e2e.cjs --watch"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
