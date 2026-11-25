@@ -264,6 +264,31 @@ async function runSuite() {
 
     await screenshot(win, "02-article-large.png")
 
+    // ---------- 連續切換字級：確認主執行緒不會被卡住 ----------
+    for (const label of ["字級小", "字級中", "字級大"]) {
+      await evaluate(
+        win,
+        `document.querySelector('[aria-label="文章字級"] button[aria-label="${label}"]').click()`
+      )
+    }
+    const responsiveness = await evaluate(
+      win,
+      `new Promise((resolve) => {
+        const start = performance.now()
+        setTimeout(() => {
+          resolve({
+            lag: Math.round(performance.now() - start),
+            scale: document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale'),
+          })
+        }, 50)
+      })`
+    )
+    record(
+      "連續切換字級後頁面仍可回應（主執行緒 unblock）",
+      responsiveness.lag < 500 && responsiveness.scale === "large",
+      `lag=${responsiveness.lag}ms scale=${responsiveness.scale}`
+    )
+
     // ---------- 重新載入：字級是否保留 ----------
     // 先把 localStorage 寫入磁碟，否則緊接 reload 會讀不到（Chromium 非同步落盤）
     await session.defaultSession.flushStorageData()
@@ -373,6 +398,26 @@ async function runSuite() {
       pageErrors.length === 0 && consoleErrors.length === 0,
       JSON.stringify({ pageErrors, consoleErrors })
     )
+
+    // ---------- 舊 build 的 chunk 404：應自動重新載入 ----------
+    const reloadStarted = new Promise((resolve) => {
+      const handler = () => {
+        win.webContents.off("did-start-loading", handler)
+        resolve(true)
+      }
+      win.webContents.on("did-start-loading", handler)
+    })
+    await evaluate(
+      win,
+      `(window.dispatchEvent(
+        new ErrorEvent("error", { message: "Loading chunk 1234 failed." })
+      ), true)`
+    )
+    const recovered = await Promise.race([
+      reloadStarted,
+      sleep(3000).then(() => false),
+    ])
+    record("舊 build 的 chunk 404 會自動重新載入", recovered === true)
   } finally {
     win.destroy()
   }
