@@ -170,7 +170,7 @@ async function runSuite() {
 
     const initialScale = await evaluate(
       win,
-      "document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale')"
+      "document.documentElement.getAttribute('data-reading-scale')"
     )
     record(
       "預設字級為 medium",
@@ -231,7 +231,7 @@ async function runSuite() {
       () =>
         evaluate(
           win,
-          `document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale') === "large"`
+          `document.documentElement.getAttribute('data-reading-scale') === "large"`
         ),
       { timeout: 5000 }
     )
@@ -240,7 +240,7 @@ async function runSuite() {
     const afterClick = await evaluate(
       win,
       `({
-        scale: document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale'),
+        scale: document.documentElement.getAttribute('data-reading-scale'),
         stored: localStorage.getItem('starlight:reading-scale'),
         fontSize: getComputedStyle(document.querySelector('.notion')).fontSize,
         errors: window.__e2eErrors || [],
@@ -278,7 +278,7 @@ async function runSuite() {
         setTimeout(() => {
           resolve({
             lag: Math.round(performance.now() - start),
-            scale: document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale'),
+            scale: document.documentElement.getAttribute('data-reading-scale'),
           })
         }, 50)
       })`
@@ -309,7 +309,7 @@ async function runSuite() {
       () =>
         evaluate(
           win,
-          `document.querySelector('[data-reading-scale]')?.getAttribute('data-reading-scale') === "large"`
+          `document.documentElement.getAttribute('data-reading-scale') === "large"`
         ),
       { timeout: 5000 }
     )

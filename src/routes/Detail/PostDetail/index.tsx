@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useMemo, useRef } from "react"
 import PostHeader from "./PostHeader"
 import Footer from "./PostFooter"
 import CommentBox from "./CommentBox"
@@ -12,12 +12,6 @@ import ReadingPosition from "./ReadingPosition"
 import HeadingLinks from "./HeadingLinks"
 import BookmarkButton from "./BookmarkButton"
 import ReadingSettings from "./ReadingSettings"
-import {
-  READING_SCALE_EVENT,
-  ReadingScale,
-  readReadingScale,
-  writeReadingScale,
-} from "src/libs/readingScale"
 import TableOfContents from "./TableOfContents"
 import PostNavigation from "./PostNavigation"
 import RelatedPosts from "./RelatedPosts"
@@ -37,20 +31,6 @@ const PostDetail: React.FC<Props> = () => {
   const data = usePostQuery()
   const posts = usePostsQuery()
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const [readingScale, setReadingScale] = useState<ReadingScale>("medium")
-
-  useEffect(() => {
-    const sync = () => setReadingScale(readReadingScale())
-
-    sync()
-    window.addEventListener(READING_SCALE_EVENT, sync)
-    window.addEventListener("storage", sync)
-
-    return () => {
-      window.removeEventListener(READING_SCALE_EVENT, sync)
-      window.removeEventListener("storage", sync)
-    }
-  }, [])
 
   const toc = useMemo(
     () => (data ? getTableOfContents(data.recordMap, data.id) : []),
@@ -88,7 +68,7 @@ const PostDetail: React.FC<Props> = () => {
       <ReadingProgress targetRef={wrapperRef} />
       <ReadingPosition postId={data.id} />
       <HeadingLinks containerRef={wrapperRef} />
-      <StyledWrapper ref={wrapperRef} data-reading-scale={readingScale}>
+      <StyledWrapper ref={wrapperRef}>
         <div className="layout" data-toc={showToc}>
           <article>
             <div className="actions">
@@ -100,13 +80,7 @@ const PostDetail: React.FC<Props> = () => {
                 )}
               </div>
               <div className="tools">
-                <ReadingSettings
-                  value={readingScale}
-                  onChange={(scale) => {
-                    setReadingScale(scale)
-                    writeReadingScale(scale)
-                  }}
-                />
+                <ReadingSettings />
                 {data.type[0] === "Post" && <BookmarkButton slug={data.slug} />}
               </div>
             </div>
@@ -166,21 +140,6 @@ const StyledWrapper = styled.div`
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   margin: 0 auto;
-
-  &[data-reading-scale="small"] .notion {
-    font-size: 0.9375rem;
-    line-height: 1.6;
-  }
-
-  &[data-reading-scale="medium"] .notion {
-    font-size: 1rem;
-    line-height: 1.65;
-  }
-
-  &[data-reading-scale="large"] .notion {
-    font-size: 1.125rem;
-    line-height: 1.7;
-  }
 
   > .layout {
     display: grid;

@@ -1,30 +1,79 @@
+import { Global, css } from "@emotion/react"
 import styled from "@emotion/styled"
-import React from "react"
-import { READING_SCALES, ReadingScale } from "src/libs/readingScale"
+import React, { useEffect, useState } from "react"
+import {
+  READING_SCALE_EVENT,
+  READING_SCALES,
+  ReadingScale,
+  readReadingScale,
+  writeReadingScale,
+} from "src/libs/readingScale"
 
-type Props = {
-  value: ReadingScale
-  onChange: (scale: ReadingScale) => void
-}
+/**
+ * 字級只靠 <html data-reading-scale> 上的全域 CSS 生效，
+ * 不經過文章元件的 React state，避免切換時重繪整棵 Notion 樹。
+ */
+const scaleStyles = css`
+  html[data-reading-scale="small"] .notion {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
 
-const ReadingSettings: React.FC<Props> = ({ value, onChange }) => {
+  html[data-reading-scale="medium"] .notion {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  html[data-reading-scale="large"] .notion {
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
+`
+
+const ReadingSettings: React.FC = () => {
+  const [scale, setScale] = useState<ReadingScale>("medium")
+
+  useEffect(() => {
+    const apply = () => {
+      const next = readReadingScale()
+      setScale(next)
+      document.documentElement.setAttribute("data-reading-scale", next)
+    }
+
+    apply()
+    window.addEventListener(READING_SCALE_EVENT, apply)
+    window.addEventListener("storage", apply)
+
+    return () => {
+      window.removeEventListener(READING_SCALE_EVENT, apply)
+      window.removeEventListener("storage", apply)
+      document.documentElement.removeAttribute("data-reading-scale")
+    }
+  }, [])
+
   return (
-    <StyledWrapper role="group" aria-label="文章字級">
-      <span className="label" aria-hidden="true">
-        Aa
-      </span>
-      {READING_SCALES.map((scale) => (
-        <button
-          key={scale.value}
-          type="button"
-          aria-pressed={value === scale.value}
-          aria-label={`字級${scale.label}`}
-          onClick={() => onChange(scale.value)}
-        >
-          {scale.label}
-        </button>
-      ))}
-    </StyledWrapper>
+    <>
+      <Global styles={scaleStyles} />
+      <StyledWrapper role="group" aria-label="文章字級">
+        <span className="label" aria-hidden="true">
+          Aa
+        </span>
+        {READING_SCALES.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={scale === option.value}
+            aria-label={`字級${option.label}`}
+            onClick={() => {
+              setScale(option.value)
+              writeReadingScale(option.value)
+            }}
+          >
+            {option.label}
+          </button>
+        ))}
+      </StyledWrapper>
+    </>
   )
 }
 
