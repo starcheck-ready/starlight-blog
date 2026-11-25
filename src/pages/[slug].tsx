@@ -5,6 +5,7 @@ import { NextPageWithLayout } from "../types"
 import CustomError from "src/routes/Error"
 import { getRecordMap, getPosts } from "src/apis"
 import MetaConfig from "src/components/MetaConfig"
+import JsonLd from "src/components/JsonLd"
 import { getOgImageUrl } from "src/libs/ogImage"
 import { GetStaticProps } from "next"
 import { queryClient } from "src/libs/react-query"
@@ -80,9 +81,57 @@ const DetailPage: NextPageWithLayout = () => {
     noindex: post.status?.[0] === "Outdated",
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": post.type[0] === "Page" ? "WebPage" : "Article",
+        headline: post.title,
+        name: post.title,
+        description: post.summary || CONFIG.blog.description,
+        image: image ? [image] : undefined,
+        datePublished: new Date(date).toISOString(),
+        dateModified: new Date(date).toISOString(),
+        author: {
+          "@type": "Person",
+          name: post.author?.[0]?.name || CONFIG.profile.name,
+        },
+        publisher: {
+          "@type": "Organization",
+          name: CONFIG.blog.title,
+          url: CONFIG.link,
+        },
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": `${CONFIG.link}/${post.slug}`,
+        },
+        ...(post.tags?.length ? { keywords: post.tags.join(", ") } : {}),
+        ...(post.category?.length ? { articleSection: post.category[0] } : {}),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "首頁",
+            item: CONFIG.link,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: post.title,
+            item: `${CONFIG.link}/${post.slug}`,
+          },
+        ],
+      },
+    ],
+  }
+
   return (
     <>
       <MetaConfig {...meta} />
+      <JsonLd data={jsonLd} />
       <Detail />
     </>
   )

@@ -3,10 +3,12 @@ import Link from "next/link"
 import React from "react"
 import { CONFIG } from "site.config"
 import { Emoji } from "src/components/Emoji"
+import { isGuidePost } from "src/libs/guide"
 import { formatDate } from "src/libs/utils"
 import { TPost, TPosts } from "src/types"
 
 const STALE_DAYS = 180
+const VERIFY_DAYS = 180
 
 const getTime = (post: TPost) =>
   new Date(post.date?.start_date || post.createdTime).getTime()
@@ -56,6 +58,24 @@ const checks: Check[] = [
     label: `超過 ${STALE_DAYS} 天未更新`,
     hint: "建議複查資料是否仍然正確",
     test: (post) => getDaysSince(post) > STALE_DAYS,
+  },
+  {
+    key: "verified-missing",
+    label: "攻略未標記驗證日期",
+    hint: "在 Notion 的 Verified 日期欄位填上最後確認日期",
+    test: (post) => isGuidePost(post) && !post.Verified?.start_date,
+  },
+  {
+    key: "verified-stale",
+    label: `攻略超過 ${VERIFY_DAYS} 天未驗證`,
+    hint: "遊戲改版後建議重新確認內容，並更新 Verified 日期",
+    test: (post) => {
+      const verified = post.Verified?.start_date
+      if (!isGuidePost(post) || !verified) return false
+      return (
+        (Date.now() - new Date(verified).getTime()) / 86_400_000 > VERIFY_DAYS
+      )
+    },
   },
 ]
 

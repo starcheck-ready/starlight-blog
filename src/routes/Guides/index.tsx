@@ -10,18 +10,8 @@ import {
   importGuideProgress,
   readGuideChecked,
 } from "src/libs/guideProgress"
+import type { GuideSummary } from "src/libs/guidesData"
 import { formatDate } from "src/libs/utils"
-
-export type GuideSummary = {
-  id: string
-  slug: string
-  title: string
-  thumbnail?: string
-  category?: string[]
-  date: string
-  outdated: boolean
-  todos: { id: string; checked: boolean }[]
-}
 
 type Props = {
   guides: GuideSummary[]
@@ -122,6 +112,9 @@ const Guides: React.FC<Props> = ({ guides }) => {
           </div>
         </div>
         {message && <p className="message">{message}</p>}
+        <div className="shortcuts">
+          <Link href="/todo">📝 查看未完成清單</Link>
+        </div>
       </div>
 
       {guides.length === 0 && (
@@ -160,6 +153,11 @@ const Guides: React.FC<Props> = ({ guides }) => {
                 <div className="meta">
                   {guide.category?.[0] && <span>{guide.category[0]}</span>}
                   <span>{formatDate(guide.date, CONFIG.lang)}</span>
+                  {guide.verified && (
+                    <span>
+                      ✅ 驗證 {formatDate(guide.verified, CONFIG.lang)}
+                    </span>
+                  )}
                 </div>
                 {guideTotal > 0 ? (
                   <div className="progress">
@@ -262,6 +260,19 @@ const StyledWrapper = styled.div`
 
     > .message {
       color: ${({ theme }) => theme.colors.gray11};
+    }
+
+    > .shortcuts {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+
+      a {
+        color: ${({ theme }) => theme.colors.gray10};
+
+        :hover {
+          color: ${({ theme }) => theme.colors.gray12};
+        }
+      }
     }
   }
 

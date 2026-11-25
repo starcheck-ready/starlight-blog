@@ -3,6 +3,7 @@ import { CONFIG } from "../../site.config"
 import { NextPageWithLayout } from "../types"
 import { getPosts } from "../apis"
 import MetaConfig from "src/components/MetaConfig"
+import JsonLd from "src/components/JsonLd"
 import { queryClient } from "src/libs/react-query"
 import { queryKey } from "src/constants/queryKey"
 import { GetStaticProps } from "next"
@@ -32,6 +33,17 @@ const FeedPage: NextPageWithLayout = () => {
   return (
     <>
       <MetaConfig {...meta} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: CONFIG.blog.title,
+          description: CONFIG.blog.description,
+          url: CONFIG.link,
+          inLanguage: CONFIG.lang,
+          author: { "@type": "Person", name: CONFIG.profile.name },
+        }}
+      />
       <Feed />
     </>
   )

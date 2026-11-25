@@ -45,6 +45,7 @@ const Archive: React.FC = () => {
         <p>共 {posts.length} 篇文章，依年份排列。</p>
         <div className="links">
           <Link href="/guides">🎮 攻略總覽</Link>
+          <Link href="/series">📚 系列總覽</Link>
           <Link href="/status">🩺 內容健檢</Link>
         </div>
       </div>

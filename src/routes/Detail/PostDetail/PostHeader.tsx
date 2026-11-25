@@ -45,6 +45,15 @@ const PostHeader: React.FC<Props> = ({ data, readingTime }) => {
                 <div className="reading-time">☕ 約 {readingTime} 分鐘</div>
               </>
             )}
+            {data.Verified?.start_date && (
+              <>
+                <div className="hr"></div>
+                <div className="verified">
+                  ✅ 最後驗證：
+                  {formatDate(data.Verified.start_date, CONFIG.lang)}
+                </div>
+              </>
+            )}
           </div>
           <div className="mid">
             {data.tags && (
@@ -110,6 +119,9 @@ const StyledWrapper = styled.div`
         }
       }
       .reading-time {
+        white-space: nowrap;
+      }
+      .verified {
         white-space: nowrap;
       }
     }

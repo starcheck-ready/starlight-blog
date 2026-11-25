@@ -36,6 +36,7 @@ export type TPost = {
   pinned?: boolean
   Series?: string[]
   SeriesOrder?: string
+  Verified?: { start_date?: string; end_date?: string | null }
 }
 
 export type PostDetail = TPost & {

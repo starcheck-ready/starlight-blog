@@ -57,6 +57,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       changefreq: "daily",
     },
     {
+      loc: `${CONFIG.link}/series`,
+      lastmod: new Date().toISOString(),
+      priority: 0.7,
+      changefreq: "daily",
+    },
+    {
       loc: `${CONFIG.link}/archive`,
       lastmod: new Date().toISOString(),
       priority: 0.8,
