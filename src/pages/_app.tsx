@@ -1,8 +1,10 @@
 import { AppPropsWithLayout } from "../types"
 import { Hydrate, QueryClientProvider } from "@tanstack/react-query"
-import { useEffect } from "react"
+import { Analytics } from "@vercel/analytics/react"
+import { useEffect, useState } from "react"
 import { RootLayout } from "src/layouts"
 import { queryClient } from "src/libs/react-query"
+import { CONFIG } from "site.config"
 
 const RELOAD_KEY = "starlight:stale-build-reload"
 
@@ -50,6 +52,24 @@ const useStaleBuildRecovery = () => {
   }, [])
 }
 
+/**
+ * 只在正式網域載入 Vercel Analytics。
+ * 本機（localhost / next start）沒有 /_vercel/insights/* 端點，載入只會產生 404。
+ */
+const AnalyticsGate = () => {
+  const [enabled, setEnabled] = useState(false)
+
+  useEffect(() => {
+    try {
+      setEnabled(window.location.hostname === new URL(CONFIG.link).hostname)
+    } catch {
+      // CONFIG.link 不是合法 URL 時維持關閉
+    }
+  }, [])
+
+  return enabled ? <Analytics /> : null
+}
+
 function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout || ((page) => page)
 
@@ -59,6 +79,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
     <QueryClientProvider client={queryClient}>
       <Hydrate state={pageProps.dehydratedState}>
         <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
+        <AnalyticsGate />
       </Hydrate>
     </QueryClientProvider>
   )

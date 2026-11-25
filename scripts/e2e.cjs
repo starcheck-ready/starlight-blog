@@ -399,6 +399,19 @@ async function runSuite() {
       JSON.stringify({ pageErrors, consoleErrors })
     )
 
+    const analytics = await evaluate(
+      win,
+      `({
+        script: Boolean(document.querySelector('script[src*="/_vercel/insights"]')),
+        host: location.hostname,
+      })`
+    )
+    record(
+      "非正式網域不載入 Vercel Analytics 腳本",
+      analytics.script === false,
+      `host=${analytics.host}`
+    )
+
     // ---------- 舊 build 的 chunk 404：應自動重新載入 ----------
     const reloadStarted = new Promise((resolve) => {
       const handler = () => {
