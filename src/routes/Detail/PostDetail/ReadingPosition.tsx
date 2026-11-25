@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { storage } from "src/libs/safeStorage"
 
 const STORAGE_PREFIX = "starlight:reading:"
 
@@ -12,7 +13,7 @@ type Props = {
 const ReadingPosition: React.FC<Props> = ({ postId }) => {
   useEffect(() => {
     const key = `${STORAGE_PREFIX}${postId}`
-    const saved = Number(window.localStorage.getItem(key) || 0)
+    const saved = Number(storage.get(key) || 0)
     let restored = false
     let attempts = 0
     let restoreTimer: number | undefined
@@ -26,8 +27,8 @@ const ReadingPosition: React.FC<Props> = ({ postId }) => {
       if (!restored) return
 
       const y = window.scrollY
-      if (y < 300) window.localStorage.removeItem(key)
-      else window.localStorage.setItem(key, String(Math.round(y)))
+      if (y < 300) storage.remove(key)
+      else storage.set(key, String(Math.round(y)))
     }
 
     const tryRestore = () => {

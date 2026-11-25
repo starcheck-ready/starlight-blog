@@ -1,3 +1,5 @@
+import { storage } from "src/libs/safeStorage"
+
 export const GUIDE_PROGRESS_EVENT = "guide-progress-change"
 
 const STORAGE_PREFIX = "starlight:guide:"
@@ -7,23 +9,21 @@ const getStorageKey = (blockId: string) => `${STORAGE_PREFIX}${blockId}`
 export const readGuideChecked = (blockId: string, fallback: boolean) => {
   if (typeof window === "undefined") return fallback
 
-  const value = window.localStorage.getItem(getStorageKey(blockId))
+  const value = storage.get(getStorageKey(blockId))
   return value === null ? fallback : value === "true"
 }
 
 export const writeGuideChecked = (blockId: string, checked: boolean) => {
   if (typeof window === "undefined") return
 
-  window.localStorage.setItem(getStorageKey(blockId), String(checked))
+  storage.set(getStorageKey(blockId), String(checked))
   window.dispatchEvent(new Event(GUIDE_PROGRESS_EVENT))
 }
 
 export const resetGuideChecked = (blockIds: string[]) => {
   if (typeof window === "undefined") return
 
-  blockIds.forEach((blockId) =>
-    window.localStorage.removeItem(getStorageKey(blockId))
-  )
+  blockIds.forEach((blockId) => storage.remove(getStorageKey(blockId)))
   window.dispatchEvent(new Event(GUIDE_PROGRESS_EVENT))
 }
 
@@ -36,15 +36,14 @@ export type GuideProgressExport = {
 export const exportGuideProgress = (): GuideProgressExport => {
   const progress: Record<string, true> = {}
 
-  if (typeof window !== "undefined") {
-    for (let index = 0; index < window.localStorage.length; index++) {
-      const key = window.localStorage.key(index)
-      if (!key || !key.startsWith(STORAGE_PREFIX)) continue
-      if (window.localStorage.getItem(key) === "true") {
+  storage
+    .keys()
+    .filter((key) => key.startsWith(STORAGE_PREFIX))
+    .forEach((key) => {
+      if (storage.get(key) === "true") {
         progress[key.slice(STORAGE_PREFIX.length)] = true
       }
-    }
-  }
+    })
 
   return { version: 1, exportedAt: new Date().toISOString(), progress }
 }
@@ -60,7 +59,7 @@ export const importGuideProgress = (payload: unknown): number => {
   let count = 0
   Object.entries(data.progress ?? {}).forEach(([blockId, checked]) => {
     if (checked !== true) return
-    window.localStorage.setItem(getStorageKey(blockId), "true")
+    storage.set(getStorageKey(blockId), "true")
     count++
   })
 

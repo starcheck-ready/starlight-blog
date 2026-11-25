@@ -1,3 +1,5 @@
+import { storage } from "src/libs/safeStorage"
+
 export const BOOKMARK_EVENT = "bookmark-change"
 
 const STORAGE_KEY = "starlight:bookmarks"
@@ -6,7 +8,7 @@ export const readBookmarks = (): string[] => {
   if (typeof window === "undefined") return []
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const raw = storage.get(STORAGE_KEY)
     const parsed = raw ? JSON.parse(raw) : []
     return Array.isArray(parsed)
       ? parsed.filter((value): value is string => typeof value === "string")
@@ -19,7 +21,7 @@ export const readBookmarks = (): string[] => {
 const writeBookmarks = (slugs: string[]) => {
   if (typeof window === "undefined") return
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs))
+  storage.set(STORAGE_KEY, JSON.stringify(slugs))
   window.dispatchEvent(new Event(BOOKMARK_EVENT))
 }
 

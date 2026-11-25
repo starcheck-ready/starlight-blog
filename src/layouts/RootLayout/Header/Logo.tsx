@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { MdOutlineChevronLeft } from "react-icons/md"
+import { MdOutlineChevronLeft, MdOutlineHome } from "react-icons/md"
 import { CONFIG } from "site.config"
 
 const NAV_FLAG = "starlight:hasNavigated"
@@ -37,20 +37,40 @@ const Logo = () => {
   }
 
   return (
-    <StyledButton
-      type="button"
-      onClick={handleBack}
-      aria-label="返回"
-      title="返回"
-    >
-      <MdOutlineChevronLeft aria-hidden />
-    </StyledButton>
+    <StyledActions>
+      <StyledButton
+        type="button"
+        onClick={handleBack}
+        aria-label="返回"
+        title="返回"
+      >
+        <MdOutlineChevronLeft aria-hidden />
+      </StyledButton>
+      <StyledButton
+        type="button"
+        onClick={() => router.push("/")}
+        aria-label="首頁"
+        title="首頁"
+      >
+        <MdOutlineHome aria-hidden />
+      </StyledButton>
+    </StyledActions>
   )
 }
 
 export default Logo
 
 const StyledWrapper = styled(Link)``
+
+const StyledActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  @media (max-width: 480px) {
+    gap: 0.375rem;
+  }
+`
 
 const StyledButton = styled.button`
   display: inline-flex;
@@ -68,5 +88,11 @@ const StyledButton = styled.button`
   :hover {
     background-color: ${({ theme }) => theme.colors.gray5};
     color: ${({ theme }) => theme.colors.gray12};
+  }
+
+  @media (max-width: 480px) {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.375rem;
   }
 `

@@ -39,20 +39,28 @@ const StyledWrapper = styled.div`
   background-color: ${({ theme }) => theme.colors.gray4};
 
   > .label {
+    display: flex;
+    height: 1.75rem;
     padding: 0 0.375rem;
+    align-items: center;
     font-size: 0.75rem;
+    line-height: 1;
     color: ${({ theme }) => theme.colors.gray9};
   }
 
   > button {
+    display: flex;
     width: 1.75rem;
     height: 1.75rem;
     padding: 0;
+    align-items: center;
+    justify-content: center;
     border: none;
     border-radius: 9999px;
     background: transparent;
     color: ${({ theme }) => theme.colors.gray10};
     font-size: 0.75rem;
+    line-height: 1;
     cursor: pointer;
 
     :hover {
