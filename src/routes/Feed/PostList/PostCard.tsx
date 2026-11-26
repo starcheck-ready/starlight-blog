@@ -106,11 +106,8 @@ const StyledWrapper = styled(Link)`
       position: relative;
       width: 100%;
       background-color: ${({ theme }) => theme.colors.gray2};
-      padding-bottom: 66%;
-
-      @media (min-width: 1024px) {
-        padding-bottom: 50%;
-      }
+      /* 與 16:9 縮圖一致，避免 cover 裁切左右兩側的文字 */
+      padding-bottom: 56.25%;
     }
     > .content {
       padding: 1rem;

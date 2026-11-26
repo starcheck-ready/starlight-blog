@@ -144,11 +144,8 @@ const StyledWrapper = styled.div`
       border-radius: 1.5rem;
       width: 100%;
       background-color: ${({ theme }) => theme.colors.gray4};
-      padding-bottom: 66%;
-
-      @media (min-width: 1024px) {
-        padding-bottom: 50%;
-      }
+      /* 與 16:9 縮圖一致，避免 cover 裁切左右兩側的文字 */
+      padding-bottom: 56.25%;
     }
   }
 `
