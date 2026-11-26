@@ -64,12 +64,13 @@ const DetailPage: NextPageWithLayout = () => {
   const date = post.date?.start_date || post.createdTime || ""
 
   const image =
+    post.thumbnail ??
     getOgImageUrl({
       title: post.title,
       description: post.summary || "",
       category: post.category?.[0],
       date,
-    }) ?? post.thumbnail
+    })
 
   const meta = {
     title: post.title,
