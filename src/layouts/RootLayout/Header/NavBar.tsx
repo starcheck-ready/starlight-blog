@@ -5,7 +5,7 @@ import {
   MdOutlineBookmarkBorder,
   MdOutlineFolderOpen,
   MdOutlinePersonOutline,
-  MdOutlineRssFeed,
+  MdOutlineSettings,
 } from "react-icons/md"
 
 const links = [
@@ -13,6 +13,7 @@ const links = [
   { id: 2, name: "Archive", to: "/archive", icon: MdOutlineArchive },
   { id: 3, name: "Projects", to: "/projects", icon: MdOutlineFolderOpen },
   { id: 4, name: "Saved", to: "/saved", icon: MdOutlineBookmarkBorder },
+  { id: 5, name: "設定", to: "/settings", icon: MdOutlineSettings },
 ]
 
 const NavBar: React.FC = () => {
@@ -26,17 +27,6 @@ const NavBar: React.FC = () => {
             </Link>
           </li>
         ))}
-        <li key="rss">
-          <a
-            href="/rss.xml"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="RSS"
-            title="RSS"
-          >
-            <MdOutlineRssFeed aria-hidden />
-          </a>
-        </li>
       </ul>
     </StyledWrapper>
   )
