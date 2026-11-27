@@ -38,6 +38,10 @@ export const getPosts = async () => {
     for (let i = 0; i < pageIds.length; i++) {
       const id = pageIds[i]
       const properties = (await getPageProperties(id, block, schema)) || null
+      // Notion text values can contain trailing spaces; normalize the slug
+      if (properties?.slug) {
+        properties.slug = properties.slug.trim()
+      }
       // "PinnedPost" behaves like a normal Post, flagged as pinned
       const types: string[] = properties.type || []
       properties.pinned = types.includes("PinnedPost")
