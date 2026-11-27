@@ -118,11 +118,11 @@ const clamp = (value: number, min: number, max: number) =>
 
 const PasswordGenerator: React.FC = () => {
   const [mode, setMode] = useState<Mode>("random")
-  const [length, setLength] = useState(20)
+  const [length, setLength] = useState(16)
   const [wordCount, setWordCount] = useState(4)
   const [pinLength, setPinLength] = useState(6)
   const [numbers, setNumbers] = useState(true)
-  const [symbols, setSymbols] = useState(false)
+  const [symbols, setSymbols] = useState(true)
   const [password, setPassword] = useState("")
   const [copied, setCopied] = useState(false)
 
