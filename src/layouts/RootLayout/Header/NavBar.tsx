@@ -3,6 +3,7 @@ import Link from "next/link"
 import {
   MdOutlineArchive,
   MdOutlineBookmarkBorder,
+  MdOutlineBuild,
   MdOutlineFolderOpen,
   MdOutlinePersonOutline,
   MdOutlineSettings,
@@ -13,7 +14,8 @@ const links = [
   { id: 2, name: "Archive", to: "/archive", icon: MdOutlineArchive },
   { id: 3, name: "Projects", to: "/projects", icon: MdOutlineFolderOpen },
   { id: 4, name: "Saved", to: "/saved", icon: MdOutlineBookmarkBorder },
-  { id: 5, name: "設定", to: "/settings", icon: MdOutlineSettings },
+  { id: 5, name: "小工具", to: "/tools", icon: MdOutlineBuild },
+  { id: 6, name: "設定", to: "/settings", icon: MdOutlineSettings },
 ]
 
 const NavBar: React.FC = () => {
