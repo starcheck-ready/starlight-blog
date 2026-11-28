@@ -18,7 +18,7 @@
 | Series      | 巫師 3                                                                                   |
 | SeriesOrder | 3（魔力之所 #1、昆特牌 #2）                                                              |
 | Verified    | 2026-11-26                                                                               |
-| summary     | 血腥男爵線完整 checklist：屍嬰的處理、呢喃山丘的抉擇、兩個結局的分歧點與不可逆存檔位置。 |
+| summary     | 血腥男爵線完整 checklist：強尼與孤兒院、屍嬰的處理、呢喃山丘的抉擇、兩個結局的分歧點與不可逆存檔位置。 |
 
 ---
 
@@ -40,7 +40,7 @@
 | 任務             | 地點                   | 關鍵抉擇                 | 影響                         |
 | ---------------- | ---------------------- | ------------------------ | ---------------------------- |
 | 家家有本難念的經 | 烏鴉窩、巫醫小屋       | 屍嬰：超度／取血追蹤     | 決定是否得到「家事精靈」帶路 |
-| 林中夫人         | 沼澤孤兒院、三女巫洞穴 | 呢喃山丘：殺樹心／放樹心 | 孤兒、Anna、男爵三個結局     |
+| 林中夫人         | 沼澤孤兒院、強尼的洞穴、三女巫洞穴 | 呢喃山丘：殺樹心／放樹心 | 孤兒、Anna、男爵三個結局     |
 | 呢喃山丘（支線） | 呢喃山丘地底           | 同上                     | 同上                         |
 
 ---
@@ -118,9 +118,25 @@
 
 > 圖片來源：遊戲內截圖，經 [Witcher Wiki](https://witcher.fandom.com/wiki/File:Three_crones.jpg) 收錄｜版權屬 CD PROJEKT RED
 
-☑ 進入沼澤孤兒院，與 Anna 及孩子對話
-　- Anna 認不出你，說話像被控制
-　- 孩子會提到「夫人們」晚上會來
+### 階段一：孤兒院與強尼（Johnny）
+
+☑ 沿「糖果小徑」（Trail of Treats）用獵魔感官找到沼澤孤兒院
+　- 孩子們唱著關於「夫人們」的歌，說她們晚上會來
+　- Gran（後揭示為 Anna）不願跟陌生人交談，先把知道強尼下落的男孩 Travik 趕進屋
+☑ 想辦法引開 Gran（孩子們會幫忙），再向 Travik 打聽強尼
+☑ 往沼澤東側追蹤腳印，找到「強尼的洞穴」
+　- 途中會遇到水鬼與水妖，注意別驚動附近的蜂巢
+☑ 把強尼叫出來
+　- 他是小地靈（godling），能說人話，但聲音被三女巫奪走，只能比手畫腳
+☑ 跟著強尼穿越沼澤
+　- 他會太靠近水鬼，順手幫他清掉
+☑ 爬上沼澤上方的懸崖，從烏鴉巢取回封著他聲音的瓶子
+☑ 把瓶子交還強尼，他恢復說話
+　- 強尼見過灰白頭髮的少女往孤兒院方向跑，當時他失聲，無法叫住她（Ciri）
+☑ 帶強尼回孤兒院，由他勸 Gran 聯絡三女巫
+
+### 階段二：三女巫與呢喃山丘
+
 ☑ 前往沼澤深處的三女巫洞穴
 　- 路上有水鬼與沼澤怪，建議先塗油、帶蜂巢／燕子藥水
 ☑ 與三女巫對話
@@ -205,6 +221,7 @@
 - 三女巫的形象取自《馬克白》三女巫＋斯拉夫民間傳說；她們互稱姐妹、共享感官（[Witcher Wiki：Crones](https://witcher.fandom.com/wiki/Crones) 另記錄：三人的造型分別對應溺死、吊死、燒死三種獵巫處刑）
 - 男爵的結局演出：若他上吊，中庭那棵樹與他第一次登場的位置重疊
 - 烏鴉窩的環境敘事：酒瓶、打翻的家具、被修補過的門
+- 後續主線的安息日（Bald Mountain）會再遇到強尼：他被三女巫逼來參加，離開前會指點你通往山頂的路
 
 ![圖 7：孤兒院裡的三女巫掛毯——刀、籃子與眼睛，是她們「以保護換取祭品」的視覺暗示](https://wsrv.nl/?url=static.wikia.nocookie.net/witcher/images/e/eb/Tw3_crones_tapestry.png&w=1000&output=jpg)
 
@@ -225,7 +242,7 @@
 ## 8. 參考資料與圖片出處
 
 - 任務流程與分支結果：[Family Matters](https://witcher.fandom.com/wiki/Family_Matters)（家家有本難念的經）、[Ladies of the Wood](https://witcher.fandom.com/wiki/Ladies_of_the_Wood)（林中夫人）、[The Whispering Hillock](https://witcher.fandom.com/wiki/The_Whispering_Hillock)（呢喃山丘）
-- 角色與生物設定：[Phillip Strenger](https://witcher.fandom.com/wiki/Phillip_Strenger)（血腥男爵）、[Anna Strenger](https://witcher.fandom.com/wiki/Anna_Strenger)、[Botchling](https://witcher.fandom.com/wiki/Botchling)、[Crones](https://witcher.fandom.com/wiki/Crones)
+- 角色與生物設定：[Phillip Strenger](https://witcher.fandom.com/wiki/Phillip_Strenger)（血腥男爵）、[Anna Strenger](https://witcher.fandom.com/wiki/Anna_Strenger)、[Botchling](https://witcher.fandom.com/wiki/Botchling)、[Crones](https://witcher.fandom.com/wiki/Crones)、[Johnny](https://witcher.fandom.com/wiki/Johnny)（強尼）
 - 地點：[Crow's Perch](https://witcher.fandom.com/wiki/Crow%27s_Perch)（烏鴉窩）、[Downwarren](https://witcher.fandom.com/wiki/Downwarren)（下瓦倫）、[Crookback Bog](https://witcher.fandom.com/wiki/Crookback_Bog)（沼澤地區）
 - 版本資訊（官方）：[Steam《巫師 3：狂獵》商店頁](https://store.steampowered.com/app/292030/)、[《巫師》系列官方網站](https://thewitcher.com/en/witcher3)
 - 圖片：每張圖下方均標註對應的 Witcher Wiki 檔案頁；版權屬 CD PROJEKT RED，僅作攻略示意
@@ -241,5 +258,6 @@
 - [ ] 「巫醫」在繁中版的正式稱呼（占卜師／巫醫？）
 - [ ] Ciri 房間找到的道具名稱與用途
 - [ ] 繁中版三女巫、水妖的正式譯名
+- [ ] 「小地靈」（godling）、「糖果小徑」（Trail of Treats）在繁中版的正式譯名
 - [ ] 是否能與男爵打昆特牌、是否給特殊卡
 - [ ] 放走樹心後，孩子在遊戲中是否有任何後續線索
